@@ -22,7 +22,7 @@ set(BUILD_EXAMPLE
 
 
 find_package(Filesystem REQUIRED Final)
-add_library(sc_logger src/logger.cpp)
+add_library(sc_logger src/logger.cpp src/file_handler.cpp src/record_info.cpp)
 
 target_include_directories(sc_logger
     PUBLIC
