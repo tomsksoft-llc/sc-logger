@@ -2,8 +2,8 @@
 #include <thread>
 #include <scl/logger.h>
 #include <scf/scf.h>
-#include <scl/console_handler.h>
-#include <scl/file_handler.h>
+#include <scl/console_recorder.h>
+#include <scl/file_recorder.h>
 
 std::unique_ptr<scl::Logger> ConsoleLogger;
 std::unique_ptr<scl::Logger> FileLogger;
@@ -65,18 +65,18 @@ int main(int argc, char *argv[]) {
     const auto align_info = scl::AlignInfo{10, 20};
 
     scl::Logger::Options options{Level::Debug, 1};
-    scl::ConsoleHandler::Options console_options{align_info};
-    scl::FileHandler::Options file_options;
+    scl::ConsoleRecorder::Options console_options{align_info};
+    scl::FileRecorder::Options file_options;
     file_options.log_directory = "/home/bso/tmp";
     file_options.file_name_template = "file.%t.%n.txt";
     file_options.size_limit = 1000;
     file_options.align_info = align_info;
 
-    auto console_handler = scl::ConsoleHandler::Init(console_options);
-    auto file_handler = Unwrap(scl::FileHandler::Init(file_options));
+    auto console_recorder = scl::ConsoleRecorder::Init(console_options);
+    auto file_recorder = Unwrap(scl::FileRecorder::Init(file_options));
 
-    ConsoleLogger = Unwrap(scl::Logger::Init(options, std::move(console_handler)));
-    FileLogger = Unwrap(scl::Logger::Init(options, std::move(file_handler)));
+    ConsoleLogger = Unwrap(scl::Logger::Init(options, std::move(console_recorder)));
+    FileLogger = Unwrap(scl::Logger::Init(options, std::move(file_recorder)));
 
     UserType val{"12345"};
     TEE_LOG(Level::Debug, "foo %s", "bar");

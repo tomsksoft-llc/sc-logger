@@ -1,9 +1,9 @@
-#include <scl/file_handler.h>
+#include <scl/file_recorder.h>
 #include <scl/detail/misc.h>
 
 namespace scl {
 
-FileHandler::InitResult FileHandler::Init(const Options &options) {
+FileRecorder::InitResult FileRecorder::Init(const Options &options) {
     using Error = InitError;
 
     const auto &log_directory = options.log_directory;
@@ -32,10 +32,10 @@ FileHandler::InitResult FileHandler::Init(const Options &options) {
         return Error::IncorrectFileNameTemplate;
     }
 
-    std::unique_ptr<FileHandler> instance;
-    instance.reset(new FileHandler(options,
-                                   std::move(specifier_positions),
-                                   std::move(specifiers)));
+    std::unique_ptr<FileRecorder> instance;
+    instance.reset(new FileRecorder(options,
+                                    std::move(specifier_positions),
+                                    std::move(specifiers)));
 
     // there is no need to lock a mutex,
     // because the function should be called once on an application start
@@ -47,8 +47,8 @@ FileHandler::InitResult FileHandler::Init(const Options &options) {
     return instance;
 }
 
-FileHandler::ProcessTemplateResult FileHandler::ProcessTemplate(std::string_view templ,
-                                                                const FileHandler::SpecifierSet &search_specifiers) {
+FileRecorder::ProcessTemplateResult FileRecorder::ProcessTemplate(std::string_view templ,
+                                                                  const FileRecorder::SpecifierSet &search_specifiers) {
     using Error = TemplateError;
     ProcessTemplateResult result;
 
@@ -95,7 +95,7 @@ FileHandler::ProcessTemplateResult FileHandler::ProcessTemplate(std::string_view
     return result;
 }
 
-void FileHandler::OnRecord(const RecordInfo &record) {
+void FileRecorder::OnRecord(const RecordInfo &record) {
     // if last time we couldn't open a file, don't try to do it again
     if (!m_log_file.is_open()) {
         // there is no need to check, open and write to file
@@ -123,15 +123,15 @@ void FileHandler::OnRecord(const RecordInfo &record) {
     m_log_file << record_str << std::endl;
 }
 
-FileHandler::FileHandler(Options options,
-                         SpecifierPositions &&file_name_specifier_positions,
-                         SpecifierSet &&file_name_specifiers)
+FileRecorder::FileRecorder(Options options,
+                           SpecifierPositions &&file_name_specifier_positions,
+                           SpecifierSet &&file_name_specifiers)
     : m_options(std::move(options)),
       m_file_name_specifier_positions(std::move(file_name_specifier_positions)),
       m_file_name_specifiers(std::move(file_name_specifiers)) {
 }
 
-FileHandler::OpenFileResult FileHandler::OpenFile() {
+FileRecorder::OpenFileResult FileRecorder::OpenFile() {
     using Result = OpenFileResult;
     // if the method was called, the path_info should be set
     fs::path log_file_path;
@@ -140,6 +140,19 @@ FileHandler::OpenFileResult FileHandler::OpenFile() {
     const bool file_name_can_be_rotated
         = static_cast<bool>(m_file_name_specifiers.count(
             detail::file_name_formatting::rotation_iteration_number_spc_k));
+
+    // true if the file name template contains a '%t' specifier
+    const bool file_name_contains_time_specifier
+        = static_cast<bool>(m_file_name_specifiers.count(
+            detail::file_name_formatting::current_time_spc_k));
+
+    const auto current_time = std::time(nullptr);
+    // check that the last rotation time was changed and we can
+    if (file_name_contains_time_specifier && current_time != m_last_file_open_time) {
+        m_rotation_iteration = 0;
+    }
+
+    m_last_file_open_time = current_time;
 
     m_log_file.close();
     m_log_file_path.clear();
@@ -169,8 +182,8 @@ FileHandler::OpenFileResult FileHandler::OpenFile() {
     return Result::Ok;
 }
 
-FileHandler::CheckFileSizeResult FileHandler::CheckFileSize(const fs::path &file,
-                                                            std::size_t record_data_size) const {
+FileRecorder::CheckFileSizeResult FileRecorder::CheckFileSize(const fs::path &file,
+                                                              std::size_t record_data_size) const {
     using Result = CheckFileSizeResult;
 
     std::error_code ec{};
@@ -193,7 +206,7 @@ FileHandler::CheckFileSizeResult FileHandler::CheckFileSize(const fs::path &file
     return Result::Allowed;
 }
 
-fs::path FileHandler::CompileFullPath() const {
+fs::path FileRecorder::CompileFullPath() const {
     std::string file_name = m_options.file_name_template;
 
     std::size_t offset = 0;
@@ -215,7 +228,7 @@ fs::path FileHandler::CompileFullPath() const {
     return m_options.log_directory / file_name;
 }
 
-std::optional<std::lock_guard<std::mutex>> FileHandler::LockMutex() {
+std::optional<std::lock_guard<std::mutex>> FileRecorder::LockMutex() {
 #ifdef SCL_MULTITHREADED
     return std::make_optional<std::lock_guard<std::mutex>>(m_record_mutex);
 #else

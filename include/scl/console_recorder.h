@@ -11,15 +11,15 @@
 #include <memory>
 #include <iostream>
 #include <scl/align_info.h>
-#include <scl/record_handler.h>
+#include <scl/recorder.h>
 
 namespace scl {
 
-class ConsoleHandler;
+class ConsoleRecorder;
 
-using ConsoleHandlerPtr = std::unique_ptr<ConsoleHandler>;
+using ConsoleRecorderPtr = std::unique_ptr<ConsoleRecorder>;
 
-class ConsoleHandler : public IRecordHandler {
+class ConsoleRecorder : public IRecorder {
 public:
     struct Options {
         /**
@@ -28,10 +28,10 @@ public:
         std::optional<AlignInfo> align_info = std::nullopt;
     };
 
-    ~ConsoleHandler() final = default;
+    ~ConsoleRecorder() final = default;
 
-    static ConsoleHandlerPtr Init(const Options &options) {
-        return ConsoleHandlerPtr(new ConsoleHandler(options));
+    static ConsoleRecorderPtr Init(const Options &options) {
+        return ConsoleRecorderPtr(new ConsoleRecorder(options));
     }
 
     inline void OnRecord(const RecordInfo &record) final {
@@ -43,7 +43,7 @@ public:
     }
 
 private:
-    explicit ConsoleHandler(const Options &options)
+    explicit ConsoleRecorder(const Options &options)
         : m_options(options) {
     }
 

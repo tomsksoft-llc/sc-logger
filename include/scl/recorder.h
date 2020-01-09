@@ -13,12 +13,12 @@
 
 namespace scl {
 
-struct IRecordHandler {
-    virtual ~IRecordHandler() = default;
+struct IRecorder {
+    virtual ~IRecorder() = default;
 
     virtual void OnRecord(const RecordInfo &record) = 0;
 };
 
-using RecordHandlerPtr = std::unique_ptr<IRecordHandler>;
+using RecorderPtr = std::unique_ptr<IRecorder>;
 
 }

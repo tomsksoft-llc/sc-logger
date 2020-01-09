@@ -16,18 +16,18 @@
 #include <variant>
 
 #include <scl/levels.h>
-#include <scl/record_handler.h>
+#include <scl/recorder.h>
 #include <scl/align_info.h>
 #include <scf/detail/type_matching.h>
 
 namespace scl {
 
-class FileHandler;
+class FileRecorder;
 
-using FileHandlerPtr = std::unique_ptr<FileHandler>;
+using FileRecorderPtr = std::unique_ptr<FileRecorder>;
 namespace fs = std::filesystem;
 
-class FileHandler : public IRecordHandler {
+class FileRecorder : public IRecorder {
 public:
     struct Options {
         /**
@@ -63,9 +63,9 @@ public:
         CantOpenFile,
     };
 
-    using InitResult = std::variant<FileHandlerPtr, InitError>;
+    using InitResult = std::variant<FileRecorderPtr, InitError>;
 
-    ~FileHandler() final = default;
+    ~FileRecorder() final = default;
 
     static InitResult Init(const Options &options);
 
@@ -116,9 +116,9 @@ private:
     static ProcessTemplateResult ProcessTemplate(std::string_view templ,
                                                  const SpecifierSet &search_specifiers);
 
-    explicit FileHandler(Options options,
-                         SpecifierPositions &&file_name_specifier_positions,
-                         SpecifierSet &&file_name_specifiers);
+    explicit FileRecorder(Options options,
+                          SpecifierPositions &&file_name_specifier_positions,
+                          SpecifierSet &&file_name_specifiers);
 
     /**
      * Try to open the log file at the specified path with the name corresponding to the specified template.
@@ -133,15 +133,24 @@ private:
     fs::path CompileFullPath() const;
 
     /**
-     * If the SCL_MULTITHREADED is defined, lock the m_mutex, else do nothing
+     * If the SCL_MULTITHREADED is defined, lock the m_mutex, else do nothing.
      * @return mutex guard or std::nullopt
      */
     std::optional<std::lock_guard<std::mutex>> LockMutex();
 
+    /**
+     * File recorder's options.
+     */
     Options m_options;
 
+    /**
+     * Specifiers and corresponding positions that are in filename template.
+     */
     SpecifierPositions m_file_name_specifier_positions;
 
+    /**
+     * Set of specifiers that are in filename template.
+     */
     SpecifierSet m_file_name_specifiers;
 
     /**
@@ -155,9 +164,14 @@ private:
     fs::path m_log_file_path;
 
     /**
-     * Current rotation iteration. The value increase on any the log file opening.
+     * Current rotation iteration. The value increases each time the log file is opened.
      */
     std::size_t m_rotation_iteration = 0;
+
+    /**
+     * Last file open time. The value changes each time the log file is opened.
+     */
+    std::time_t m_last_file_open_time = 0;
 
 #ifdef SCL_MULTITHREADED
     std::mutex m_record_mutex;

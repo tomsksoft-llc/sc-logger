@@ -16,7 +16,7 @@
 #include <variant>
 
 #include <scl/levels.h>
-#include <scl/record_handler.h>
+#include <scl/recorder.h>
 #include <scf/detail/type_matching.h>
 
 namespace scl {
@@ -29,7 +29,7 @@ class Logger {
 public:
     enum class InitError : int {
         IncorrectLogLevel = 1,
-        EmptyRecordHandler,
+        EmptyRecorder,
     };
 
     using InitResult = std::variant<LoggerPtr, InitError>;
@@ -49,7 +49,7 @@ public:
     /**
      * Init a Logger singleton instance.
      */
-    static InitResult Init(const Options &options, RecordHandlerPtr &&handler);
+    static InitResult Init(const Options &options, RecorderPtr &&recorder);
 
     void Record(Level level, const std::string &message);
 
@@ -93,7 +93,7 @@ private:
      * Private constructor.
      * @param options - logger options.
      */
-    explicit Logger(const Options &options, RecordHandlerPtr &&handler);
+    explicit Logger(const Options &options, RecorderPtr &&recorder);
 
     void RecordImpl(Level level,
                     const std::optional<std::string> &session_id,
@@ -105,7 +105,10 @@ private:
      */
     Options m_options;
 
-    RecordHandlerPtr m_handler;
+    /**
+     * Recorder that processes log records (eg FileRecorder, ConsoleRecorder and other custom recorders)
+     */
+    RecorderPtr m_recorder;
 };
 
 } // end of scl
