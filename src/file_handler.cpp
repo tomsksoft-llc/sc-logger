@@ -21,18 +21,21 @@ FileHandler::InitResult FileHandler::Init(const Options &options) {
         return Error::IncorrectFileNameTemplate;
     }
 
-    auto &&[error, specifiers] = ProcessTemplate(file_name_template,
-                                                 {
-                                                     detail::file_name_formatting::current_time_spc_k,
-                                                     detail::file_name_formatting::rotation_iteration_number_spc_k
-                                                 });
+    auto &&[error, specifier_positions, specifiers]
+    = ProcessTemplate(file_name_template,
+                      {
+                          detail::file_name_formatting::current_time_spc_k,
+                          detail::file_name_formatting::rotation_iteration_number_spc_k
+                      });
 
     if (error != TemplateError::Ok) {
         return Error::IncorrectFileNameTemplate;
     }
 
     std::unique_ptr<FileHandler> instance;
-    instance.reset(new FileHandler(options, std::move(specifiers)));
+    instance.reset(new FileHandler(options,
+                                   std::move(specifier_positions),
+                                   std::move(specifiers)));
 
     // there is no need to lock a mutex,
     // because the function should be called once on an application start
@@ -66,6 +69,7 @@ FileHandler::ProcessTemplateResult FileHandler::ProcessTemplate(std::string_view
         };
 
     SpecifierPositions specifier_positions;
+    SpecifierSet specifiers;
     char specifier = 0;
     std::size_t pos = 0;
 
@@ -76,16 +80,18 @@ FileHandler::ProcessTemplateResult FileHandler::ProcessTemplate(std::string_view
             return result;
         }
 
-        if (specifier_positions.count(specifier)) {
+        if (specifiers.count(specifier)) {
             result.error = Error::DuplicateSpecifiers;
             return result;
         }
 
-        specifier_positions[specifier] = pos;
+        specifier_positions[pos] = specifier;
+        specifiers.insert(specifier);
         ++pos;
     }
 
-    result.file_name_specifiers = std::move(specifier_positions);
+    result.file_name_specifier_positions = std::move(specifier_positions);
+    result.file_name_specifiers = std::move(specifiers);
     return result;
 }
 
@@ -117,8 +123,11 @@ void FileHandler::OnRecord(const RecordInfo &record) {
     m_log_file << record_str << std::endl;
 }
 
-FileHandler::FileHandler(const Options &options, SpecifierPositions &&file_name_specifiers)
-    : m_options(options),
+FileHandler::FileHandler(Options options,
+                         SpecifierPositions &&file_name_specifier_positions,
+                         SpecifierSet &&file_name_specifiers)
+    : m_options(std::move(options)),
+      m_file_name_specifier_positions(std::move(file_name_specifier_positions)),
       m_file_name_specifiers(std::move(file_name_specifiers)) {
 }
 
@@ -126,7 +135,6 @@ FileHandler::OpenFileResult FileHandler::OpenFile() {
     using Result = OpenFileResult;
     // if the method was called, the path_info should be set
     fs::path log_file_path;
-    CheckFileSizeResult file_size_result = CheckFileSizeResult::IsOverflowed;
 
     // true if the file name template contains a '%n' specifier
     const bool file_name_can_be_rotated
@@ -136,6 +144,7 @@ FileHandler::OpenFileResult FileHandler::OpenFile() {
     m_log_file.close();
     m_log_file_path.clear();
 
+    CheckFileSizeResult file_size_result;
     do {
         // number of rotation iteration should start with '1'
         ++m_rotation_iteration;
@@ -189,7 +198,7 @@ fs::path FileHandler::CompileFullPath() const {
 
     std::size_t offset = 0;
     std::string dest_str;
-    for (auto[specifier, pos] : m_file_name_specifiers) {
+    for (auto[pos, specifier] : m_file_name_specifier_positions) {
         if (specifier == detail::file_name_formatting::current_time_spc_k) {
             dest_str = CurTimeStr();
         } else if (specifier == detail::file_name_formatting::rotation_iteration_number_spc_k) {
@@ -208,9 +217,10 @@ fs::path FileHandler::CompileFullPath() const {
 
 std::optional<std::lock_guard<std::mutex>> FileHandler::LockMutex() {
 #ifdef SCL_MULTITHREADED
-    return std::make_optional<std::lock_guard>(m_record_mutex);
-#endif
+    return std::make_optional<std::lock_guard<std::mutex>>(m_record_mutex);
+#else
     return std::nullopt;
+#endif
 }
 
 }

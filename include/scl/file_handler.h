@@ -73,9 +73,9 @@ public:
 
 private:
     /**
-     * Container of specifiers  within a template name
+     * Container of specifiers within a template name ordered by positions
      */
-    using SpecifierPositions = std::map<char /*specifier*/, std::size_t /*position*/>;
+    using SpecifierPositions = std::map<std::size_t /*position*/, char /*specifier*/>;
 
     /**
      * Container of specifiers
@@ -101,7 +101,8 @@ private:
 
     struct ProcessTemplateResult {
         TemplateError error = TemplateError::Ok;
-        SpecifierPositions file_name_specifiers;
+        SpecifierPositions file_name_specifier_positions;
+        SpecifierSet file_name_specifiers;
     };
 
     /**
@@ -115,7 +116,9 @@ private:
     static ProcessTemplateResult ProcessTemplate(std::string_view templ,
                                                  const SpecifierSet &search_specifiers);
 
-    explicit FileHandler(const Options &path_info, SpecifierPositions &&file_name_specifiers);
+    explicit FileHandler(Options options,
+                         SpecifierPositions &&file_name_specifier_positions,
+                         SpecifierSet &&file_name_specifiers);
 
     /**
      * Try to open the log file at the specified path with the name corresponding to the specified template.
@@ -137,7 +140,9 @@ private:
 
     Options m_options;
 
-    SpecifierPositions m_file_name_specifiers;
+    SpecifierPositions m_file_name_specifier_positions;
+
+    SpecifierSet m_file_name_specifiers;
 
     /**
      * Log file stream (only writing).

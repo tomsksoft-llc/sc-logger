@@ -18,7 +18,7 @@ set(BUILD_TESTING
 set(BUILD_EXAMPLE
     OFF
     CACHE BOOL
-    "Build examples for self-check-locckeg library")
+    "Build examples for self-check-logger library")
 
 
 find_package(Filesystem REQUIRED Final)
