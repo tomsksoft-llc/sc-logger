@@ -24,11 +24,38 @@ namespace scl {
 
 class FileRecorder;
 
-using FileRecorderPtr = std::unique_ptr<FileRecorder>;
 namespace fs = std::filesystem;
 
+/**
+ * Non-moving file recorder pointer alias.
+ */
+using FileRecorderPtr = std::unique_ptr<FileRecorder>;
+
+/**
+ * File recorder that implement the IRecorder interface.
+ * The recorder is used to write records to a file
+ * and allows automatic rotation (by substituting values instead of filename template specifiers).
+ */
 class FileRecorder : public IRecorder {
 public:
+    /**
+     * Initialization error info.
+     */
+    enum class InitError {
+        PathNotExists = 1,
+        PathIsNotDirectory,
+        IncorrectFileNameTemplate,
+        CantOpenFile,
+    };
+
+    /**
+     * Initialization result: ether pointer to an initialized file recorder or an error info.
+     */
+    using InitResult = std::variant<FileRecorderPtr, InitError>;
+
+    /**
+     * File recorder options.
+     */
     struct Options {
         /**
          * Path to a log directory.
@@ -38,10 +65,11 @@ public:
         /**
          * File name template. The template is used to allow a log rotation.
          * The file_name_template value may contain the following specifiers:
-         *   %t - current time (the specifier will be replaced by the filled "%Y-%m-%d-%H-%M-%S" template)
-         *   %n - number of rotation iteration (start with '1')
+         *   %t - current time (the specifier will be replaced by the filled "%Y-%m-%d-%H-%M-%S" template);
+         *   %n - number of rotation iteration (start with '1').
          *
-         * If the size_limit value is set (!= std::nullopt), the file_name_template value must contain at least one of the above specifiers.
+         * If the size_limit value is set (!= std::nullopt),
+         * the file_name_template value must contain at least one of the above specifiers.
          */
         std::string file_name_template;
 
@@ -56,52 +84,78 @@ public:
         std::optional<AlignInfo> align_info = std::nullopt;
     };
 
-    enum class InitError {
-        PathNotExists = 1,
-        PathIsNotDirectory,
-        IncorrectFileNameTemplate,
-        CantOpenFile,
-    };
-
-    using InitResult = std::variant<FileRecorderPtr, InitError>;
-
-    ~FileRecorder() final = default;
-
+    /**
+     * Init a FileRecorder instance.
+     * @param options - file recorder options
+     * @return - ether pointer to an initialized recorder or an error info
+     */
     static InitResult Init(const Options &options);
 
+    /**
+     * Default derived dtor.
+     */
+    ~FileRecorder() final = default;
+
+    /**
+     * @overload
+     */
     void OnRecord(const RecordInfo &record) final;
 
 private:
     /**
-     * Container of specifiers within a template name ordered by positions
+     * Container of specifiers within a template name ordered by positions.
      */
     using SpecifierPositions = std::map<std::size_t /*position*/, char /*specifier*/>;
 
     /**
-     * Container of specifiers
+     * Container of specifiers.
      */
     using SpecifierSet = std::set<char /*specifier*/>;
 
+    /**
+     * Enumeration of the CheckFileSize() method results.
+     */
     enum class CheckFileSizeResult : int {
         NotExists = 0,
         Allowed,
         IsOverflowed,
     };
 
+    /**
+     * Enumeration of the OpenFile() method results.
+     */
     enum class OpenFileResult : int {
         Ok = 0,
         CantOpenFile,
     };
 
+    /**
+     * Enumeration of the possible filename template errors.
+     */
     enum class TemplateError : int {
         Ok = 0,
         DuplicateSpecifiers,
         UnknownSpecifiers,
     };
 
+    /**
+     * Returning values of the ProcessTemplate() method.
+     */
     struct ProcessTemplateResult {
+        /**
+         * Status of the filename template processing.
+         * Ok if the template was processed correctly, else corresponding error.
+         */
         TemplateError error = TemplateError::Ok;
+
+        /**
+         * Specifiers and corresponding positions that are in a filename template.
+         */
         SpecifierPositions file_name_specifier_positions;
+
+        /**
+         * Set of specifiers that are in a filename template.
+         */
         SpecifierSet file_name_specifiers;
     };
 
@@ -110,12 +164,18 @@ private:
      * Note: template should contain only non-repeating specifiers from the search_specifiers container.
      * @param templ - source template
      * @param search_specifiers - container of specifiers that we have to find within the template
-     * @param error - output value that will be set within the function (Ok if there was no error, else error code)
-     * @return - positions of the specifiers
+     * @return - set of values (see the ProcessTemplateResult structure)
      */
     static ProcessTemplateResult ProcessTemplate(std::string_view templ,
                                                  const SpecifierSet &search_specifiers);
 
+    /**
+     * Private ctor.
+     * @param options - file recorder options
+     * @param file_name_specifier_positions - specifiers and corresponding positions
+     *                                        that are in a filename template
+     * @param file_name_specifiers - set of specifiers that are in a filename template
+     */
     explicit FileRecorder(Options options,
                           SpecifierPositions &&file_name_specifier_positions,
                           SpecifierSet &&file_name_specifiers);
@@ -127,9 +187,21 @@ private:
      */
     OpenFileResult OpenFile();
 
+    /**
+     * Check a file size.
+     * If the record_data_size is not 0,
+     * then the file's size should be less then options.size_limit - record_data_size.
+     * @param file - path to a file
+     * @param record_data_size - optional record data size
+     * @return - one of the CheckFileSizeResult values
+     */
     CheckFileSizeResult CheckFileSize(const fs::path &file,
                                       std::size_t record_data_size = 0) const;
 
+    /**
+     * Compile full path using: file name template, rotation number and path to a log directory.
+     * @return - full path
+     */
     fs::path CompileFullPath() const;
 
     /**

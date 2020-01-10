@@ -15,15 +15,15 @@ namespace scf::detail {
 
 /**
 * The function is end point of the format processing
-* (when the all arguments have put to the result string)
+* (when the all arguments have put to the result string).
 */
 inline void FormatProcessing(TypePack<>, const std::string &, std::size_t) {
 }
 
 /**
 * Processing the format string:
-* - get the arg as string (by specifier)
-* - put the string arg to the result string
+* - get the arg as string (by specifier);
+* - put the string arg to the result string.
 * @tparam Indexes - indexes of the already processed specifiers
 * @tparam T - type of the current processing argument
 * @tparam Types - types of the remaining arguments

@@ -14,17 +14,17 @@
 namespace scf::detail {
 
 /**
-* Start offset for FormatProcessing
+* Start offset for FormatProcessing.
 */
 const std::size_t start_offset_k = 0;
 
 /**
-* Start preprocessing index for FormatPreprocessing
+* Start preprocessing index for FormatPreprocessing.
 */
 const std::size_t start_preprocessing_index_k = 0;
 
 /**
-* The function is starting point for compile time format processing
+* The function is starting point for compile time format processing.
 * @tparam StrHolder - type of the lambda function that contains the constexpr format string
 * @tparam Types - types of the input arguments
 * @param holder -lambda function that contains the constexpr format string

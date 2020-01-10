@@ -7,19 +7,32 @@
 
 namespace scl::detail {
 
+/**
+ * Number trait that provide the way to detect
+ * number of digits of the maximum possible integer of the specified type.
+ * @tparam T - integral type
+ */
 template<
     typename T,
     std::enable_if_t<std::is_integral_v<T>> * = nullptr // type T must be an integral
 >
 class NumberTrait {
 private:
+    /**
+     * Detect count of digits of the number.
+     * @param number - number for which we are looking for the count of digits
+     * @return - count of digits of the number.
+     */
     static constexpr std::size_t detect_digits_count(T number) {
         return number
-        ? detect_digits_count(number / 10) + 1
-        : 0;
+               ? detect_digits_count(number / 10) + 1
+               : 0;
     }
 
 public:
+    /**
+     * Number of digits of the maximum possible integer of the specified T type.
+     */
     static constexpr std::size_t max_digits_count = detect_digits_count(std::numeric_limits<T>::max());
 };
 

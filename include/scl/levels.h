@@ -9,6 +9,9 @@
 #pragma once
 
 namespace scl {
+/**
+ * Log levels enumeration.
+ */
 enum class Level : int {
     Action = 0,
     Error,
@@ -17,6 +20,11 @@ enum class Level : int {
 };
 
 namespace detail {
+/**
+ * Check if a level is correct.
+ * @param level - level
+ * @return true if the level corresponds log levels enumeration else false
+ */
 inline bool IsLevelCorrect(Level level) {
     switch (level) {
         case Level::Action:

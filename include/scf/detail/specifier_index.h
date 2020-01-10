@@ -13,7 +13,7 @@
 namespace scf::detail {
 
 /**
-* The structure that contains the information about specifier:
+* The structure that contains the information about specifier.
 * @tparam Specifier - specifier identifier
 * @tparam Index - index of the specifier
 */

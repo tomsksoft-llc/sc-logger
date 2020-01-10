@@ -13,6 +13,11 @@
 
 namespace scl {
 
+/**
+ * Get current time as string in the following format:
+ * %Y-%m-%d-%H-%M-%S
+ * @return time as string
+ */
 inline std::string CurTimeStr() {
     namespace Fmt = detail::log_formatting;
 

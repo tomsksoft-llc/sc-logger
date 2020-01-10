@@ -8,8 +8,6 @@
 
 #pragma once
 
-#include <memory>
-#include <fstream>
 #include <mutex>
 #include <map>
 #include <set>
@@ -23,17 +21,36 @@ namespace scl {
 
 class Logger;
 
+/**
+ * Non-moving logger pointer alias.
+ */
 using LoggerPtr = std::unique_ptr<Logger>;
 
+/**
+ * Logger implementation.
+ * The main purpose of the logger are:
+ *  - hold options (like align, available level and parent pid);
+ *  - get log messages and other corresponding parameters;
+ *  - move structured record message (as RecordInfo) to a recorder.
+ */
 class Logger {
 public:
+    /**
+     * Initialization error info.
+     */
     enum class InitError : int {
         IncorrectLogLevel = 1,
         EmptyRecorder,
     };
 
+    /**
+     * Initialization result: ether pointer to an initialized logger or an error info.
+     */
     using InitResult = std::variant<LoggerPtr, InitError>;
 
+    /**
+     * Logger options.
+     */
     struct Options {
         /**
          * Logging messages which are less severe than level will be ignored.
@@ -47,16 +64,45 @@ public:
     };
 
     /**
-     * Init a Logger singleton instance.
+     * Init a Logger instance.
+     * @param options - logger options
+     * @param recorder - recorder that will handle log records
+     * @return - ether pointer to an initialized logger or an error info
      */
     static InitResult Init(const Options &options, RecorderPtr &&recorder);
 
+    /**
+     * Default dtor.
+     */
+    ~Logger() = default;
+
+    /**
+     * Record a message. Optional session id and action will not be put into a result log record.
+     * @param level - level of the record
+     *                (if the value greater than an options.level, then the message will be skipped)
+     * @param message - record message
+     */
     void Record(Level level, const std::string &message);
 
+    /**
+     * Record a message with the specified session id. Optional action will not be put into a result log record.
+     * @param level - level of the record
+     *                (if the value greater than an options.level, then the message will be skipped)
+     * @param session_id - session id
+     * @param message - record message
+     */
     void SesRecord(Level level,
                    const std::string &session_id,
                    const std::string &message);
 
+    /**
+     * Record a message with the specified action. Optional session id will not be put into a result log record.
+     * @tparam ActT - type of action
+     * @param level - level of the record
+     *                (if the value greater than an options.level, then the message will be skipped)
+     * @param action - action
+     * @param message - record message
+     */
     template<typename ActT>
     inline void ActRecord(Level level,
                           const ActT &action,
@@ -65,6 +111,15 @@ public:
         RecordImpl(level, session_id, ActionAsString(action), message);
     }
 
+    /**
+     * Record a message with the specified session id and action.
+     * @tparam ActT - type of action (must be string or there must be a ToString(ActT) function for the action)
+     * @param level - level of the record
+     *                (if the value greater than an options.level, then the message will be skipped)
+     * @param session_id - session id
+     * @param action - action
+     * @param message - record message
+     */
     template<typename ActT>
     inline void SesActRecord(Level level,
                              const std::string &session_id,
@@ -74,6 +129,12 @@ public:
     }
 
 private:
+    /**
+     * Convert an action to the string
+     * @tparam ActT - type of action (must be string or there must be a ToString(ActT) function for the action)
+     * @param action - action
+     * @return - action as string
+     */
     template<typename ActT>
     static std::string ActionAsString(const ActT &action) {
         constexpr bool is_there_to_string = scf::detail::IsThereToStringFor<ActT>::value;
@@ -92,9 +153,18 @@ private:
     /**
      * Private constructor.
      * @param options - logger options.
+     * @param recorder - recorder that will handle log records
      */
     explicit Logger(const Options &options, RecorderPtr &&recorder);
 
+    /**
+     * Message record implementation: record a message with the optional session id and action.
+     * @param level - level of the record
+     *                (if the value greater than an options.level, then the message will be skipped)
+     * @param session_id - session id
+     * @param action - action
+     * @param message - record message
+     */
     void RecordImpl(Level level,
                     const std::optional<std::string> &session_id,
                     const std::optional<std::string> &action,

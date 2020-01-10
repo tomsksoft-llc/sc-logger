@@ -14,7 +14,7 @@
 
 /**
 * The macro that wraps the str in a lambda function
-* to process the str as constexpr value
+* to process the str as constexpr value.
 */
 #define SCFormat(str, ...) \
 ::scf::detail::FormatImpl([](){return str;}, ##__VA_ARGS__)

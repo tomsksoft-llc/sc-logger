@@ -14,9 +14,9 @@
 namespace scf::detail {
 
 /**
-* does C character match specifier?
+ * Check if the C is a specifier.
 * @tparam C - checking character
-* @return true if the C character is specifier
+* @return true if the C character is a specifier
 */
 template<char C>
 inline constexpr bool IsSpecifier() {
@@ -30,7 +30,7 @@ inline constexpr bool IsSpecifier() {
 
 /**
 * Preprocess the remaining format string:
-* check if there are no more specifiers (because there are no more arguments)
+* check if there are no more specifiers (because there are no more arguments).
 * @tparam N - format length
 * @tparam I - index of the current processing character
 * @tparam StringHolder - type of the lambda function that contains the constexpr format string
@@ -62,8 +62,8 @@ inline constexpr auto FormatPreprocessing(StringHolder holder, TypePack<Indexes.
 
 /**
 * Preprocess the format string:
-* - check if the arguments match the format specifiers
-* - find and return indexes of the specifier subsequences
+* - check if the arguments match the format specifiers;
+* - find and return indexes of the specifier subsequences.
 * @tparam N - format length
 * @tparam I - index of the current processing character
 * @tparam StringHolder - type of the lambda that contains the constexpr format string
