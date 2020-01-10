@@ -31,7 +31,7 @@ template<
     std::enable_if_t<C == specifiers::string_spc_k> * = nullptr // C is 's' specifier
 >
 inline constexpr bool IsValMatchesSpecifierHelper(const T &val) {
-  return IsString(val);
+    return IsString(val);
 }
 
 /**
@@ -47,7 +47,23 @@ template<
     std::enable_if_t<C == specifiers::int_spc_k> * = nullptr // C is 'd' specifier
 >
 inline constexpr bool IsValMatchesSpecifierHelper(const T &val) {
-  return IsInt(val);
+    return IsInt(val);
+}
+
+/**
+*
+* @tparam C
+* @tparam T
+* @param val
+* @return
+*/
+template<
+    char C,
+    typename T,
+    std::enable_if_t<C == specifiers::hex_spc_k> * = nullptr // C is 'x' specifier
+>
+inline constexpr bool IsValMatchesSpecifierHelper(const T &val) {
+    return IsInt(val) || IsChar(val);
 }
 
 /**
@@ -63,7 +79,7 @@ template<
     std::enable_if_t<C == specifiers::char_spc_k> * = nullptr // C is 'c' specifier
 >
 inline constexpr bool IsValMatchesSpecifierHelper(const T &val) {
-  return IsChar(val);
+    return IsChar(val);
 }
 
 /**
@@ -79,7 +95,7 @@ template<
     std::enable_if_t<C == specifiers::bool_spc_k> * = nullptr// C is 'b' specifier
 >
 inline constexpr bool IsValMatchesSpecifierHelper(const T &val) {
-  return IsBool(val);
+    return IsBool(val);
 }
 
 /**
@@ -95,7 +111,7 @@ template<
     std::enable_if_t<C == specifiers::float_spc_k> * = nullptr // C is 'c' specifier
 >
 inline constexpr bool IsValMatchesSpecifierHelper(const T &val) {
-  return IsFloat(val);
+    return IsFloat(val);
 }
 
 template<

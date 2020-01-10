@@ -79,9 +79,10 @@ inline constexpr bool IsString(const T &val) {
 template<typename T>
 inline constexpr bool IsChar(const T &) {
     using NoCvT = std::decay_t<T>;
+    using SChar = signed char;
     using UChar = unsigned char;
 
-    return Contains<NoCvT>(TypePack<char, UChar>{});
+    return Contains<NoCvT>(TypePack<char, SChar, UChar>{});
 }
 
 template<typename T>
@@ -91,18 +92,22 @@ inline constexpr bool IsBool(const T &) {
 }
 
 template<typename T>
-inline constexpr bool IsInt(const T &) {
+inline constexpr bool IsInt(const T &val) {
     using NoCvT = std::decay_t<T>;
-    using UChar = unsigned char;
     using UShort = unsigned short;
+    using SShort = signed short;
     using UInt = unsigned int;
+    using SInt = signed int;
     using ULong = unsigned long;
+    using SLong = signed long;
     using UDLong = unsigned long long;
+    using SDLong = signed long long;
 
     return Contains<NoCvT>(
         TypePack<
-            char, UChar, short, UShort, int,
-            UInt, long, ULong, long long, UDLong>{});
+            short, SShort, UShort, int, SInt, UInt,
+            long, SLong, ULong, long long, SDLong, UDLong>{}
+    );
 }
 
 #endif

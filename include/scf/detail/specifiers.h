@@ -21,6 +21,7 @@ constexpr char start_of_spec_subseq = '%';
 
 constexpr char string_spc_k = 's';
 constexpr char int_spc_k = 'd';
+constexpr char hex_spc_k = 'x';
 constexpr char char_spc_k = 'c';
 constexpr char bool_spc_k = 'b';
 constexpr char float_spc_k = 'f';

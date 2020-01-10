@@ -33,18 +33,18 @@ const std::size_t start_preprocessing_index_k = 0;
 */
 template<typename StrHolder, typename ...Types>
 inline std::string FormatImpl(StrHolder holder, Types &&... args) {
-  constexpr std::size_t len = strlen(holder());
+    constexpr std::size_t len = strlen(holder());
 
-  // get the indexes of the specifiers in format string
-  constexpr auto specifier_indexes
-      = FormatPreprocessing<len, start_preprocessing_index_k>(holder, TypePack{}, args...);
+    // get the indexes of the specifiers in format string
+    constexpr auto specifier_indexes
+        = FormatPreprocessing<len, start_preprocessing_index_k>(holder, TypePack{}, args...);
 
-  static_assert(Size(specifier_indexes) == sizeof...(Types), "unknown library error");
+    static_assert(Size(specifier_indexes) == sizeof...(Types), "unknown library error");
 
-  std::string result = holder();
-  // put the arguments to the result string
-  FormatProcessing(specifier_indexes, result, start_offset_k, args...);
-  return result;
+    std::string result = holder();
+    // put the arguments to the result string
+    FormatProcessing(specifier_indexes, result, start_offset_k, args...);
+    return result;
 }
 
 } // end of scf::detail

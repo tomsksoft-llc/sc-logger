@@ -19,7 +19,7 @@ namespace scf::detail {
 
 template<typename T>
 struct BaseType {
-  using type = T;
+    using type = T;
 };
 
 template<typename ...Types>
@@ -28,45 +28,45 @@ struct TypePack {
 
 template<typename ...Types>
 constexpr std::size_t Size(TypePack<Types...>) {
-  return sizeof...(Types);
+    return sizeof...(Types);
 }
 
 template<typename T, typename ...Types>
 constexpr TypePack<Types..., T> PushBack(TypePack<Types...>) {
-  return {};
+    return {};
 }
 
 template<typename T, typename ...Types>
 constexpr TypePack<Types...> PopFront(TypePack<T, Types...>) {
-  return {};
+    return {};
 }
 
 template<typename T, typename ...Types>
 constexpr BaseType<T> Head(TypePack<T, Types...>) {
-  return {};
+    return {};
 }
 
 template<typename TypeX, typename TypeY>
 constexpr bool IsWeakSame() {
-  using NoCvRefX = std::remove_cv_t<std::remove_reference_t<TypeX>>;
-  using NoCvRefY = std::remove_cv_t<std::remove_reference_t<TypeY>>;
+    using NoCvRefX = std::remove_cv_t<std::remove_reference_t<TypeX>>;
+    using NoCvRefY = std::remove_cv_t<std::remove_reference_t<TypeY>>;
 
-  return std::is_same_v<NoCvRefX, NoCvRefY>;
+    return std::is_same_v<NoCvRefX, NoCvRefY>;
 }
 
 template<typename T, typename ...Types>
 constexpr bool Contains(TypePack<Types...>) {
-  return (IsWeakSame<T, Types>() || ...);
+    return (IsWeakSame<T, Types>() || ...);
 }
 
 template<typename ...TypesX, typename ...TypesY>
 constexpr bool operator==(TypePack<TypesX...>, TypePack<TypesY...>) {
-  return false;
+    return false;
 }
 
 template<typename ...Types>
 constexpr bool operator==(TypePack<Types...>, TypePack<Types...>) {
-  return true;
+    return true;
 }
 
 } // end of scf::detail
