@@ -62,3 +62,48 @@ Put the UserType object to the formatter:
 const std::string res = SCFormat("%U - user type", UserType {1});
 assert(res == "{1} - user type")
 ```
+## scl
+
+Self-check-logger (abbreviated as scl) is a library for CI purposes.
+The library provides classes for logging actions, session info and debug messages
+for Continuous Integration systems (abbreviated as CIS).
+
+### Usage
+
+The main class provides methods for the logging is `Logger`.
+The user is responsible for creating and storing an object of this class.
+The `Logger` takes a record parameters like optional session id and action and required log level
+and message string, converts it to the special structure `RecordInfo`
+and moves the record to an recorder.
+The `Logger` constructor takes a non-moving pointer to an `IRecorder` object.
+
+There are two standard recorders: `ConsoleRecorder` and `FileRecorder`.
+First prints records to the stdout, second writes records to a specified file.
+Also the user can create his own recorder via implement the `IRecorder` interface.
+
+First create a recorder, for example `ConsoleRecorder` object:
+
+```
+scl::ConsoleRecorder::Options console_options{
+    scl::AlignInfo{10 /*action_length*/, 15 /*session_id_length*/}
+};
+std::unique_ptr<ConsoleRecorder> console_recorder = scl::ConsoleRecorder::Init(console_options);
+```
+
+Second create a logger.
+Note the `Init()` method returns either pointer to a `Logger` instance or an error.
+
+```
+std::variant<LoggerPtr, InitError> console_logger_result
+    = scl::Logger::Init(options, std::move(console_recorder)));
+// Note process also the InitError
+LoggerPtr console_logger = std::get<LoggerPtr>(std::move(console_logger_result);
+```
+
+Third use the `SCFormat()` function to format a log message and make a record:
+
+```
+console_logger->Record(scl::Level::Info,
+                       SCFormat("First record has been wrote at %d UNIX time"),
+                       std::time(nullptr));
+```
