@@ -36,4 +36,9 @@ struct IRecorder {
  */
 using RecorderPtr = std::unique_ptr<IRecorder>;
 
+/**
+ * Recorder pointers container.
+ */
+using RecordersCont = std::vector<RecorderPtr>;
+
 }

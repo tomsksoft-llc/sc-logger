@@ -40,7 +40,8 @@ public:
      */
     enum class InitError : int {
         IncorrectLogLevel = 1,
-        EmptyRecorder,
+        NoRecorders,
+        UnallocatedRecorder,
     };
 
     /**
@@ -66,10 +67,10 @@ public:
     /**
      * Init a Logger instance.
      * @param options - logger options
-     * @param recorder - recorder that will handle log records
+     * @param recorders - recorders that will handle log records
      * @return - ether pointer to an initialized logger or an error info
      */
-    static InitResult Init(const Options &options, RecorderPtr &&recorder);
+    static InitResult Init(const Options &options, RecordersCont &&recorders);
 
     /**
      * Default dtor.
@@ -155,7 +156,7 @@ private:
      * @param options - logger options.
      * @param recorder - recorder that will handle log records
      */
-    explicit Logger(const Options &options, RecorderPtr &&recorder);
+    explicit Logger(const Options &options, RecordersCont &&recorder);
 
     /**
      * Message record implementation: record a message with the optional session id and action.
@@ -178,7 +179,7 @@ private:
     /**
      * Recorder that processes log records (eg FileRecorder, ConsoleRecorder and other custom recorders)
      */
-    RecorderPtr m_recorder;
+    RecordersCont m_recorders;
 };
 
 } // end of scl

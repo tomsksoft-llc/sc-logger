@@ -7,18 +7,24 @@
 
 namespace scl {
 
-Logger::InitResult Logger::Init(const Options &options, RecorderPtr &&recorder) {
+Logger::InitResult Logger::Init(const Options &options, RecordersCont &&recorders) {
     using Error = InitError;
 
     if (!detail::IsLevelCorrect(options.level)) {
         return Error::IncorrectLogLevel;
     }
 
-    if (!recorder) {
-        return Error::EmptyRecorder;
+    if (recorders.empty()) {
+        return Error::NoRecorders;
     }
 
-    return LoggerPtr(new Logger(options, std::move(recorder)));
+    for(const auto &recorder : recorders) {
+        if (!recorder) {
+            return Error::UnallocatedRecorder;
+        }
+    }
+
+    return LoggerPtr(new Logger(options, std::move(recorders)));
 }
 
 void Logger::Record(Level level, const std::string &message) {
@@ -34,9 +40,9 @@ void Logger::SesRecord(Level level,
     RecordImpl(level, session_id, action, message);
 }
 
-Logger::Logger(const Logger::Options &options, RecorderPtr &&recorder)
+Logger::Logger(const Logger::Options &options, RecordersCont &&recorder)
     : m_options(options),
-      m_recorder(std::move(recorder)) {
+      m_recorders(std::move(recorder)) {
 }
 
 void Logger::RecordImpl(Level level,
@@ -56,7 +62,9 @@ void Logger::RecordImpl(Level level,
                            m_options.parent_pid,
                            detail::CurrentProcessId()};
 
-    m_recorder->OnRecord(record_info);
+    for(auto &recorder : m_recorders) {
+        recorder->OnRecord(record_info);
+    }
 }
 
 } // end of scl
