@@ -5,7 +5,8 @@ The sc-logger is a small library that consists of two parts: scf and scl.
 ## scf
 
 Self-check-format (abbreviated as scf) is a library provides printf-like formatting with the following features:
-- check if the input arguments match the format specifiers and if it isn’t, the compiler is required to issue an error message and stop the compiling process
+- check if the input arguments match the format specifiers and if it is not,
+the compiler is required to issue an error message and stop the compiling process
 - calculate indexes of the specifiers at compile time to unload runtime formatting (available non-constexpr arguments)
 
 ### Syntax
@@ -44,7 +45,7 @@ assert(res == "str - string, 1 - int, true - bool");
 
 ```
 const std::string _ = SCFormat("%s", 1);
-// error: static assertion failed: the arguments don't match the specifiers
+// error: static assertion failed: the arguments do not match the specifiers
 ```
 
 - User type
