@@ -51,7 +51,7 @@ int main(int argc, char *argv[]) {
     scl::Logger::Options options{Level::Debug, 1};
     scl::ConsoleRecorder::Options console_options{align_info};
     scl::FileRecorder::Options file_options;
-    file_options.log_directory = "/home/bso/tmp";
+    file_options.log_directory = std::filesystem::current_path();
     file_options.file_name_template = "file.%t.%n.txt";
     file_options.size_limit = 300;
     file_options.align_info = align_info;

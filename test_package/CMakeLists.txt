@@ -7,7 +7,7 @@ conan_basic_setup()
 enable_testing()
 find_package(GTest REQUIRED)
 
-add_executable(tests src/scf_test.cpp)
+add_executable(tests src/scf_test.cpp src/scl_test.cpp)
 
 target_link_libraries(tests sc_logger GTest::GTest GTest::Main)
 
