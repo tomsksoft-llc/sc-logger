@@ -15,4 +15,3 @@ class Cis1CoreNativeTests(ConanFile):
         self.copy("libsc_logger.a", dst="lib", src="lib")
         self.copy("libsc_logger.lib", dst="lib", src="lib")
         self.copy("FindFilesystem.cmake", dst="cmake/modules", src="cmake/modules")
-
