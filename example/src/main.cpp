@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
 
     const auto align_info = scl::AlignInfo{10, 20};
 
-    scl::Logger::Options options{Level::Debug, 1};
+    scl::Logger::Options options{Level::Info, 1, "some session id"};
     scl::ConsoleRecorder::Options console_options{align_info};
     scl::FileRecorder::Options file_options;
     file_options.log_directory = std::filesystem::current_path();
@@ -64,11 +64,9 @@ int main(int argc, char *argv[]) {
 
     UserType val{"12345"};
     LOG(Level::Debug, "foo %s", "bar");
-    LOG(Level::Debug, "Action message (UserType = %U)", val);
-    LOG_S(Level::Error, "some session identifier", "Error message");
+    LOG(Level::Error, "Action message (UserType = %U)", val);
     LOG_A(Level::Info, UserActions::Act2, "Info message");
-    LOG_SA(Level::Action,
-           "some session identifier",
-           "some action as string",
-           "Action message (double = %f, char = '%c')", 3.14, '@');
+    LOG_A(Level::Action,
+          "some action as string",
+          "Action message (double = %f, char = '%c')", 3.14, '@');
 }

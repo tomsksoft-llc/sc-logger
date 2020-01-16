@@ -62,6 +62,11 @@ public:
          * Parent process id
          */
         unsigned int parent_pid = 0;
+
+        /**
+         * Optional session id
+         */
+        std::optional<std::string> session_id = std::nullopt;
     };
 
     static std::string ToStr(InitError err) {
@@ -99,17 +104,6 @@ public:
     void Record(Level level, const std::string &message);
 
     /**
-     * Record a message with the specified session id. Optional action will not be put into a result log record.
-     * @param level - level of the record
-     *                (if the value greater than an options.level, then the message will be skipped)
-     * @param session_id - session id
-     * @param message - record message
-     */
-    void SesRecord(Level level,
-                   const std::string &session_id,
-                   const std::string &message);
-
-    /**
      * Record a message with the specified action. Optional session id will not be put into a result log record.
      * @tparam ActT - type of action
      * @param level - level of the record
@@ -121,25 +115,7 @@ public:
     inline void ActRecord(Level level,
                           const ActT &action,
                           const std::string &message) {
-        const auto session_id = std::nullopt;
-        RecordImpl(level, session_id, ActionAsString(action), message);
-    }
-
-    /**
-     * Record a message with the specified session id and action.
-     * @tparam ActT - type of action (must be string or there must be a ToString(ActT) function for the action)
-     * @param level - level of the record
-     *                (if the value greater than an options.level, then the message will be skipped)
-     * @param session_id - session id
-     * @param action - action
-     * @param message - record message
-     */
-    template<typename ActT>
-    inline void SesActRecord(Level level,
-                             const std::string &session_id,
-                             const ActT &action,
-                             const std::string &message) {
-        RecordImpl(level, session_id, ActionAsString(action), message);
+        RecordImpl(level, ActionAsString(action), message);
     }
 
 private:
@@ -175,12 +151,10 @@ private:
      * Message record implementation: record a message with the optional session id and action.
      * @param level - level of the record
      *                (if the value greater than an options.level, then the message will be skipped)
-     * @param session_id - session id
      * @param action - action
      * @param message - record message
      */
     void RecordImpl(Level level,
-                    const std::optional<std::string> &session_id,
                     const std::optional<std::string> &action,
                     const std::string &message);
 
