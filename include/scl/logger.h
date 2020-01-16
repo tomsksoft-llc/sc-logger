@@ -64,6 +64,19 @@ public:
         unsigned int parent_pid = 0;
     };
 
+    static std::string ToStr(InitError err) {
+        switch (err) {
+            case InitError::IncorrectLogLevel :
+                return "IncorrectLogLevel";
+            case InitError::NoRecorders :
+                return "NoRecorders";
+            case InitError::UnallocatedRecorder :
+                return "UnallocatedRecorder";
+            default:
+                return "Unknown";
+        }
+    }
+
     /**
      * Init a Logger instance.
      * @param options - logger options

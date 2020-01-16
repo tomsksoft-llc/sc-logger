@@ -84,6 +84,21 @@ public:
         std::optional<AlignInfo> align_info = std::nullopt;
     };
 
+    static std::string ToStr(InitError err) {
+        switch (err) {
+            case InitError::PathNotExists:
+                return "PathNotExists";
+            case InitError::PathIsNotDirectory:
+                return "PathIsNotDirectory";
+            case InitError::IncorrectFileNameTemplate:
+                return "IncorrectFileNameTemplate";
+            case InitError::CantOpenFile:
+                return "CantOpenFile";
+            default:
+                return "Unknown";
+        }
+    }
+
     /**
      * Init a FileRecorder instance.
      * @param options - file recorder options
