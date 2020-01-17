@@ -3,7 +3,7 @@
 #include <type_traits>
 #include <cstddef>
 
-#include <scl/detail/process_id.h>
+#include <scl/process_id.h>
 
 namespace scl::detail {
 

@@ -59,9 +59,14 @@ public:
         Level level = Level::Action;
 
         /**
+         * Current process id
+         */
+        ProcessId pid = 0;
+
+        /**
          * Parent process id
          */
-        unsigned int parent_pid = 0;
+        ProcessId parent_pid = 0;
 
         /**
          * Optional session id

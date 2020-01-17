@@ -26,8 +26,8 @@ struct RecordInfo {
     std::optional<std::string> session_id;
     std::optional<std::string> action;
     std::string message;
-    unsigned int parent_pid = 0;
-    unsigned int pid = 0;
+    ProcessId parent_pid = 0;
+    ProcessId pid = 0;
 };
 
 /**

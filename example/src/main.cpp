@@ -48,7 +48,9 @@ int main(int argc, char *argv[]) {
 
     const auto align_info = scl::AlignInfo{10, 20};
 
-    scl::Logger::Options options{Level::Info, 1, "some session id"};
+    const scl::ProcessId pid = 12345;
+    const scl::ProcessId ppid = 1;
+    scl::Logger::Options options{Level::Info, pid, ppid, "some session id"};
     scl::ConsoleRecorder::Options console_options{align_info};
     scl::FileRecorder::Options file_options;
     file_options.log_directory = std::filesystem::current_path();

@@ -2,7 +2,7 @@
 
 #include <scl/logger.h>
 #include <scl/record_info.h>
-#include <scl/detail/process_id.h>
+#include <scl/process_id.h>
 #include <scl/detail/misc.h>
 
 namespace scl {
@@ -51,7 +51,7 @@ void Logger::RecordImpl(Level level,
                            action,
                            message,
                            m_options.parent_pid,
-                           detail::CurrentProcessId()};
+                           m_options.pid};
 
     for (auto &recorder : m_recorders) {
         recorder->OnRecord(record_info);
