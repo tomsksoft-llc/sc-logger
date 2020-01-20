@@ -12,7 +12,7 @@ namespace scl {
 
 #if defined(__linux__) || defined(__APPLE__)
 
-#include <zconf.h>
+#include <cstdint>
 
 using ProcessId = pid_t;
 

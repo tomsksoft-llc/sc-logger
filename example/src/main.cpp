@@ -8,9 +8,9 @@
 std::unique_ptr<scl::Logger> LoggerInstance;
 
 #define LOG(level, format, ...) LoggerInstance->Record(level, SCFormat(format, ##__VA_ARGS__))
-#define LOG_S(level, session_id, format, ...) LoggerInstance->SesRecord(level, session_id, SCFormat(format, ##__VA_ARGS__))
+#define LOG_S(level, format, ...) LoggerInstance->SesRecord(level, SCFormat(format, ##__VA_ARGS__))
 #define LOG_A(level, action_id, format, ...) LoggerInstance->ActRecord(level, action_id, SCFormat(format, ##__VA_ARGS__))
-#define LOG_SA(level, session_id, action_id, format, ...) LoggerInstance->SesActRecord(level, session_id, action_id, SCFormat(format, ##__VA_ARGS__))
+#define LOG_SA(level, action_id, format, ...) LoggerInstance->SesActRecord(level, action_id, SCFormat(format, ##__VA_ARGS__))
 
 
 struct UserType {
@@ -46,11 +46,11 @@ auto &&Unwrap(std::variant<Value, Error> &&result) {
 int main(int argc, char *argv[]) {
     using Level = scl::Level;
 
-    const auto align_info = scl::AlignInfo{10, 20};
+    const auto align_info = scl::AlignInfo{15, 20};
 
     const scl::ProcessId pid = 12345;
     const scl::ProcessId ppid = 1;
-    scl::Logger::Options options{Level::Info, pid, ppid, "some session id"};
+    scl::Logger::Options options{Level::Debug, pid, ppid, "some session id"};
     scl::ConsoleRecorder::Options console_options{align_info};
     scl::FileRecorder::Options file_options;
     file_options.log_directory = std::filesystem::current_path();
@@ -66,9 +66,9 @@ int main(int argc, char *argv[]) {
 
     UserType val{"12345"};
     LOG(Level::Debug, "foo %s", "bar");
-    LOG(Level::Error, "Action message (UserType = %U)", val);
+    LOG_S(Level::Error, "Error message (UserType = %U)", val);
     LOG_A(Level::Info, UserActions::Act2, "Info message");
-    LOG_A(Level::Action,
-          "some action as string",
-          "Action message (double = %f, char = '%c')", 3.14, '@');
+    LOG_SA(Level::Action,
+           "some str action",
+           "Action message (double = %f, char = '%c')", 3.14, '@');
 }

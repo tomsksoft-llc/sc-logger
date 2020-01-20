@@ -28,8 +28,15 @@ Logger::InitResult Logger::Init(const Options &options, RecordersCont &&recorder
 }
 
 void Logger::Record(Level level, const std::string &message) {
+    const auto session_id = std::nullopt;
     const auto action = std::nullopt;
-    RecordImpl(level, action, message);
+    RecordImpl(level, session_id, action, message);
+}
+
+void Logger::SesRecord(Level level,
+                       const std::string &message) {
+    const auto action = std::nullopt;
+    RecordImpl(level, m_options.session_id, action, message);
 }
 
 Logger::Logger(const Logger::Options &options, RecordersCont &&recorder)
@@ -38,6 +45,7 @@ Logger::Logger(const Logger::Options &options, RecordersCont &&recorder)
 }
 
 void Logger::RecordImpl(Level level,
+                        const std::optional<std::string> &session_id,
                         const std::optional<std::string> &action,
                         const std::string &message) {
     if (m_options.level < level) {
@@ -47,7 +55,7 @@ void Logger::RecordImpl(Level level,
 
     RecordInfo record_info{level,
                            CurTimeStr(),
-                           m_options.session_id,
+                           session_id,
                            action,
                            message,
                            m_options.parent_pid,
