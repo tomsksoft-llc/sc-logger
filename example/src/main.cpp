@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
 
     const auto align_info = scl::AlignInfo{15, 20};
 
-    const scl::ProcessId pid = 12345;
+    const scl::ProcessId pid = 1222212345;
     const scl::ProcessId ppid = 1;
     scl::Logger::Options options{Level::Debug, pid, ppid, "some session id"};
     scl::ConsoleRecorder::Options console_options{align_info};
