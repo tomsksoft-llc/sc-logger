@@ -1,0 +1,87 @@
+#include <cassert>
+#include <thread>
+#include <cis1_webui_logger/webui_logger.h>
+#include <scf/scf.h>
+#include <scl/console_recorder.h>
+#include <scl/file_recorder.h>
+
+cis1::webui_logger::LoggerPtr LoggerInstance;
+
+#define LOG_SYS(level, format, ...) \
+LoggerInstance->SysRecord(level, SCFormat(format, ##__VA_ARGS__))
+
+#define LOG(level, protocol, format, ...) \
+LoggerInstance->Record(level, protocol, __FUNCTION__, SCFormat(format, ##__VA_ARGS__))
+
+#define LOG_USR(level, protocol, format, ...) \
+LoggerInstance->UserRecord(level, protocol, __FUNCTION__, context.addr, context.email, SCFormat(format, ##__VA_ARGS__))
+
+struct UserType {
+    std::string data;
+};
+
+std::string ToString(const UserType &val) {
+    return "{" + val.data + "}";
+}
+
+template<typename Value, typename Error>
+auto &&Unwrap(std::variant<Value, Error> &&result) {
+    const auto *error = std::get_if<Error>(&result);
+    assert(!error);
+    return std::get<Value>(std::move(result));
+}
+
+struct UserContext {
+    std::string email;
+    std::string addr;
+};
+
+using Level = scl::Level;
+
+using Protocol = cis1::webui_logger::Protocol;
+
+void handler_one(const UserContext &context) {
+    LOG_USR(Level::Debug, Protocol::HTTP_POST, "Debug %s", "message");
+    LOG_USR(Level::Info, Protocol::HTTP_POST, "Info message");
+    LOG(Level::Error, Protocol::HTTP_POST, "Error message (double = %f, char = '%c')", 3.14, '@');
+}
+
+void handler_two(const UserContext &context) {
+    LOG_USR(Level::Debug, Protocol::WS, "Debug %s", "message");
+    LOG_USR(Level::Info, Protocol::WS, "Info message");
+    LOG(Level::Error, Protocol::WS, "Error message (double = %f, char = '%c')", 3.14, '@');
+}
+
+int main(int argc, char *argv[]) {
+    const bool align = true;
+
+    cis1::webui_logger::WebuiLogger::Options options{Level::Debug};
+
+    scl::ConsoleRecorder::Options console_options{align};
+
+    scl::FileRecorder::Options file_options;
+    file_options.log_directory = std::filesystem::current_path();
+    file_options.file_name_template = "cis1_webui_log.%t.%n.txt";
+    file_options.size_limit = 600;
+    file_options.align = align;
+
+    scl::RecordersCont recorders;
+    recorders.push_back(scl::ConsoleRecorder::Init(console_options));
+    recorders.push_back(Unwrap(scl::FileRecorder::Init(file_options)));
+
+    LoggerInstance = Unwrap(cis1::webui_logger::WebuiLogger::Init(options, std::move(recorders)));
+
+    UserType val{"12345"};
+    UserContext context{"first_usr@example.com", "127.0.0.1:8000"};
+
+    LOG_SYS(Level::Action, "Run handler_one() (UserType = %U)", val);
+    handler_one(context);
+    LOG_SYS(Level::Action, "Stop handler_one()");
+
+    context.email = "second_usr@exampl.com";
+    context.addr = "127.0.0.1:8001";
+
+    LOG_SYS(Level::Action, "Run handler_two() (double = %f, char = '%c')", 3.14, '@');
+    handler_two(context);
+    LOG_SYS(Level::Action, "Stop handler_two()");
+}

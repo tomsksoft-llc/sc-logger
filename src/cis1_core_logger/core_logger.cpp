@@ -1,16 +1,15 @@
 #include <variant>
 
-#include <scl/logger.h>
-#include <scl/record_info.h>
-#include <scl/process_id.h>
+#include <cis1_core_logger/core_logger.h>
+#include <cis1_core_logger/core_record.h>
 #include <scl/detail/misc.h>
 
-namespace scl {
+namespace cis1::core_logger {
 
-Logger::InitResult Logger::Init(const Options &options, RecordersCont &&recorders) {
+CoreLogger::InitResult CoreLogger::Init(const Options &options, scl::RecordersCont &&recorders) {
     using Error = InitError;
 
-    if (!detail::IsLevelCorrect(options.level)) {
+    if (!scl::detail::IsLevelCorrect(options.level)) {
         return Error::IncorrectLogLevel;
     }
 
@@ -24,42 +23,42 @@ Logger::InitResult Logger::Init(const Options &options, RecordersCont &&recorder
         }
     }
 
-    return LoggerPtr(new Logger(options, std::move(recorders)));
+    return LoggerPtr(new CoreLogger(options, std::move(recorders)));
 }
 
-void Logger::Record(Level level, const std::string &message) {
+void CoreLogger::Record(scl::Level level, const std::string &message) {
     const auto session_id = std::nullopt;
     const auto action = std::nullopt;
     RecordImpl(level, session_id, action, message);
 }
 
-void Logger::SesRecord(Level level,
-                       const std::string &message) {
+void CoreLogger::SesRecord(scl::Level level,
+                           const std::string &message) {
     const auto action = std::nullopt;
     RecordImpl(level, m_options.session_id, action, message);
 }
 
-Logger::Logger(const Logger::Options &options, RecordersCont &&recorder)
+CoreLogger::CoreLogger(const CoreLogger::Options &options, scl::RecordersCont &&recorder)
     : m_options(options),
       m_recorders(std::move(recorder)) {
 }
 
-void Logger::RecordImpl(Level level,
-                        const std::optional<std::string> &session_id,
-                        const std::optional<std::string> &action,
-                        const std::string &message) {
+void CoreLogger::RecordImpl(scl::Level level,
+                            const std::optional<std::string> &session_id,
+                            const std::optional<std::string> &action,
+                            const std::string &message) {
     if (m_options.level < level) {
         // the level is not supported by settings
         return;
     }
 
-    RecordInfo record_info{level,
-                           CurTimeStr(),
+    CoreRecord record_info(level,
+                           scl::CurTimeStr(),
                            session_id,
                            action,
                            message,
                            m_options.parent_pid,
-                           m_options.pid};
+                           m_options.pid);
 
     for (auto &recorder : m_recorders) {
         recorder->OnRecord(record_info);

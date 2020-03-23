@@ -1,11 +1,11 @@
 #include <cassert>
 #include <thread>
-#include <scl/logger.h>
+#include <cis1_core_logger/core_logger.h>
 #include <scf/scf.h>
 #include <scl/console_recorder.h>
 #include <scl/file_recorder.h>
 
-std::unique_ptr<scl::Logger> LoggerInstance;
+cis1::core_logger::LoggerPtr LoggerInstance;
 
 #define LOG(level, format, ...) LoggerInstance->Record(level, SCFormat(format, ##__VA_ARGS__))
 #define LOG_S(level, format, ...) LoggerInstance->SesRecord(level, SCFormat(format, ##__VA_ARGS__))
@@ -46,26 +46,28 @@ auto &&Unwrap(std::variant<Value, Error> &&result) {
 int main(int argc, char *argv[]) {
     using Level = scl::Level;
 
-    const auto align_info = scl::AlignInfo{15, 20};
-
     const scl::ProcessId pid = 12345;
     const scl::ProcessId ppid = 1;
-    scl::Logger::Options options{Level::Debug, pid, ppid, "some session id"};
-    scl::ConsoleRecorder::Options console_options{align_info};
+    const bool align = true;
+
+    cis1::core_logger::CoreLogger::Options options{Level::Debug, pid, ppid, "some session id"};
+
+    scl::ConsoleRecorder::Options console_options{align};
+
     scl::FileRecorder::Options file_options;
     file_options.log_directory = std::filesystem::current_path();
-    file_options.file_name_template = "file.%t.%n.txt";
+    file_options.file_name_template = "cis1_core_log.%t.%n.txt";
     file_options.size_limit = 300;
-    file_options.align_info = align_info;
+    file_options.align = align;
 
     scl::RecordersCont recorders;
     recorders.push_back(scl::ConsoleRecorder::Init(console_options));
     recorders.push_back(Unwrap(scl::FileRecorder::Init(file_options)));
 
-    LoggerInstance = Unwrap(scl::Logger::Init(options, std::move(recorders)));
+    LoggerInstance = Unwrap(cis1::core_logger::CoreLogger::Init(options, std::move(recorders)));
 
     UserType val{"12345"};
-    LOG(Level::Debug, "foo %s", "bar");
+    LOG(Level::Debug, "Debug %s", "message");
     LOG_S(Level::Error, "Error message (UserType = %U)", val);
     LOG_A(Level::Info, UserActions::Act2, "Info message");
     LOG_SA(Level::Action,

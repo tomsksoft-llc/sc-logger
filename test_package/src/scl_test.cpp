@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <scl/logger.h>
+#include <cis1_core_logger/core_logger.h>
 #include <scl/console_recorder.h>
 #include <scl/file_recorder.h>
 
@@ -15,43 +15,44 @@ void Unwrap(Value &dst, std::variant<Value, Error> &&src) {
 
 
 using namespace scl;
+using namespace cis1::core_logger;
 
 TEST(SclTest, LoggerIncorrectLogLevelError) {
-    using Error = Logger::InitError;
+    using Error = CoreLogger::InitError;
 
-    Logger::Options options{static_cast<Level>(50)};
+    CoreLogger::Options options{static_cast<Level>(50)};
     RecordersCont cont;
 
-    auto result = Logger::Init(options, std::move(cont));
+    auto result = CoreLogger::Init(options, std::move(cont));
     EXPECT_ERROR(result, Error::IncorrectLogLevel);
 }
 
 TEST(SclTest, LoggerNoRecordersError) {
-    using Error = Logger::InitError;
+    using Error = CoreLogger::InitError;
 
-    Logger::Options options{};
+    CoreLogger::Options options{};
     RecordersCont cont;
 
-    auto result = Logger::Init(options, std::move(cont));
+    auto result = CoreLogger::Init(options, std::move(cont));
     EXPECT_ERROR(result, Error::NoRecorders);
 }
 
 TEST(SclTest, LoggerUnallocatedRecorderError) {
-    using Error = Logger::InitError;
+    using Error = CoreLogger::InitError;
 
-    Logger::Options options{};
+    CoreLogger::Options options{};
     RecordersCont cont;
     // push an unallocated recorder to the cont
     cont.push_back(std::unique_ptr<IRecorder>());
 
-    auto result = Logger::Init(options, std::move(cont));
+    auto result = CoreLogger::Init(options, std::move(cont));
     EXPECT_ERROR(result, Error::UnallocatedRecorder);
 }
 
 TEST(SclTest, LoggerInitialized) {
-    using Error = Logger::InitError;
+    using Error = CoreLogger::InitError;
 
-    Logger::Options options{Level::Debug};
+    CoreLogger::Options options{Level::Debug};
     ConsoleRecorder::Options console_recorder_options{};
 
     RecordersCont cont;
@@ -59,7 +60,7 @@ TEST(SclTest, LoggerInitialized) {
     cont.push_back(ConsoleRecorder::Init(console_recorder_options));
 
     LoggerPtr logger;
-    Unwrap(logger, Logger::Init(options, std::move(cont)));
+    Unwrap(logger, CoreLogger::Init(options, std::move(cont)));
     ASSERT_TRUE(logger);
 }
 

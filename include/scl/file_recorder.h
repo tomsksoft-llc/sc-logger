@@ -17,7 +17,7 @@
 
 #include <scl/levels.h>
 #include <scl/recorder.h>
-#include <scl/align_info.h>
+#include <scl/record.h>
 #include <scf/detail/type_matching.h>
 
 namespace scl {
@@ -79,9 +79,9 @@ public:
         std::optional<std::size_t> size_limit = std::nullopt;
 
         /**
-         * Allow to align entry attributes, if the values is set.
+         * Allow to align entry attributes, if the values is true.
          */
-        std::optional<AlignInfo> align_info = std::nullopt;
+        bool align = false;
     };
 
     static std::string ToStr(InitError err) {
@@ -114,7 +114,7 @@ public:
     /**
      * @overload
      */
-    void OnRecord(const RecordInfo &record) final;
+    void OnRecord(const IRecord &record) final;
 
 private:
     /**

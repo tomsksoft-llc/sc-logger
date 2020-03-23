@@ -95,7 +95,7 @@ FileRecorder::ProcessTemplateResult FileRecorder::ProcessTemplate(std::string_vi
     return result;
 }
 
-void FileRecorder::OnRecord(const RecordInfo &record) {
+void FileRecorder::OnRecord(const IRecord &record) {
     // if last time we couldn't open a file, don't try to do it again
     if (!m_log_file.is_open()) {
         // there is no need to check, open and write to file
@@ -105,9 +105,9 @@ void FileRecorder::OnRecord(const RecordInfo &record) {
     // a log file is opened already
 
     const auto record_str
-        = m_options.align_info
-          ? ToString(record, *m_options.align_info)
-          : ToString(record);
+        = m_options.align
+          ? record.ToAlignedString()
+          : record.ToString();
 
     // lock the mutex here, before the OpenFile() will be called
     const auto lock = LockMutex();

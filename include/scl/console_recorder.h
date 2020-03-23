@@ -10,7 +10,6 @@
 
 #include <memory>
 #include <iostream>
-#include <scl/align_info.h>
 #include <scl/recorder.h>
 
 namespace scl {
@@ -32,9 +31,9 @@ public:
      */
     struct Options {
         /**
-         * Allow to align entry attributes, if the values is set.
+         * Allow to align entry attributes, if the values is true.
          */
-        std::optional<AlignInfo> align_info = std::nullopt;
+        bool align = false;
     };
 
     /**
@@ -54,11 +53,11 @@ public:
     /**
      * @overload
      */
-    inline void OnRecord(const RecordInfo &record) final {
-        if (m_options.align_info) {
-            std::cout << ToString(record, *m_options.align_info) << std::endl;
+    inline void OnRecord(const IRecord &record) final {
+        if (m_options.align) {
+            std::cout << record.ToAlignedString() << std::endl;
         } else {
-            std::cout << ToString(record) << std::endl;
+            std::cout << record.ToString() << std::endl;
         }
     }
 

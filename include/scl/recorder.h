@@ -9,7 +9,7 @@
 #pragma once
 
 #include <memory>
-#include <scl/record_info.h>
+#include <scl/record.h>
 
 namespace scl {
 
@@ -28,7 +28,7 @@ struct IRecorder {
      * Handle a log record.
      * @param record - record info that should be handled.
      */
-    virtual void OnRecord(const RecordInfo &record) = 0;
+    virtual void OnRecord(const IRecord &record) = 0;
 };
 
 /**
