@@ -72,43 +72,43 @@ TEST(SclTest, ConsoleRecorderInitialized) {
 }
 
 TEST(SclTest, FileRecorderPathNotExistsError) {
-    using Error = FileRecorder::InitError;
-    FileRecorder::Options options{};
+    using Error = FileRecorder<CoreRecord>::InitError;
+    FileRecorder<CoreRecord>::Options options{};
     // pass the options with the empty path
-    const auto result = FileRecorder::Init(options);
+    const auto result = FileRecorder<CoreRecord>::Init(options);
     EXPECT_ERROR(result, Error::PathNotExists);
 }
 
 TEST(SclTest, FileRecorderEmptyTemplateFilenameError) {
-    using Error = FileRecorder::InitError;
-    FileRecorder::Options options{};
+    using Error = FileRecorder<CoreRecord>::InitError;
+    FileRecorder<CoreRecord>::Options options{};
     options.log_directory = fs::current_path();
 
     // pass the options with the empty file name template
-    const auto result = FileRecorder::Init(options);
+    const auto result = FileRecorder<CoreRecord>::Init(options);
     EXPECT_ERROR(result, Error::IncorrectFileNameTemplate);
 }
 
 TEST(SclTest, FileRecorderUnknownSpecifierError) {
-    using Error = FileRecorder::InitError;
-    FileRecorder::Options options{};
+    using Error = FileRecorder<CoreRecord>::InitError;
+    FileRecorder<CoreRecord>::Options options{};
     options.log_directory = fs::current_path();
     // set the file name with unknown 'u' specifier
     options.file_name_template = "file.%u.txt";
 
     // pass the options with the empty file name template
-    const auto result = FileRecorder::Init(options);
+    const auto result = FileRecorder<CoreRecord>::Init(options);
     EXPECT_ERROR(result, Error::IncorrectFileNameTemplate);
 }
 
 TEST(SclTest, FileRecorderDuplicateSpecifiersError) {
-    using Error = FileRecorder::InitError;
-    FileRecorder::Options options{};
+    using Error = FileRecorder<CoreRecord>::InitError;
+    FileRecorder<CoreRecord>::Options options{};
     options.log_directory = fs::current_path();
     // set the file name with unknown 'u' specifier
     options.file_name_template = "file.%n.%n.txt";
 
     // pass the options with the empty file name template
-    const auto result = FileRecorder::Init(options);
+    const auto result = FileRecorder<CoreRecord>::Init(options);
     EXPECT_ERROR(result, Error::IncorrectFileNameTemplate);
 }
