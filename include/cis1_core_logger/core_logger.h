@@ -13,6 +13,7 @@
 #include <set>
 #include <variant>
 
+#include <cis1_core_logger/core_record.h>
 #include <scl/levels.h>
 #include <scl/recorder.h>
 #include <scl/process_id.h>
@@ -94,7 +95,7 @@ public:
      * @param recorders - recorders that will handle log records
      * @return - ether pointer to an initialized logger or an error info
      */
-    static InitResult Init(const Options &options, scl::RecordersCont &&recorders);
+    static InitResult Init(const Options &options, scl::RecordersCont<CoreRecord> &&recorders);
 
     /**
      * Default dtor.
@@ -175,7 +176,7 @@ private:
      * @param options - logger options.
      * @param recorder - recorder that will handle log records
      */
-    explicit CoreLogger(const Options &options, scl::RecordersCont &&recorder);
+    explicit CoreLogger(const Options &options, scl::RecordersCont<CoreRecord> &&recorder);
 
     /**
      * Message record implementation: record a message with the optional session id and action.
@@ -197,7 +198,7 @@ private:
     /**
      * Recorder that processes log records (eg FileRecorder, ConsoleRecorder and other custom recorders)
      */
-    scl::RecordersCont m_recorders;
+    scl::RecordersCont<CoreRecord> m_recorders;
 };
 
 } // end of cis1::core_logger

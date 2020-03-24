@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include <cis1_core_logger/core_logger.h>
+#include <cis1_core_logger/core_record.h>
 #include <scl/console_recorder.h>
 #include <scl/file_recorder.h>
 
@@ -21,7 +22,7 @@ TEST(SclTest, LoggerIncorrectLogLevelError) {
     using Error = CoreLogger::InitError;
 
     CoreLogger::Options options{static_cast<Level>(50)};
-    RecordersCont cont;
+    RecordersCont<CoreRecord> cont;
 
     auto result = CoreLogger::Init(options, std::move(cont));
     EXPECT_ERROR(result, Error::IncorrectLogLevel);
@@ -31,7 +32,7 @@ TEST(SclTest, LoggerNoRecordersError) {
     using Error = CoreLogger::InitError;
 
     CoreLogger::Options options{};
-    RecordersCont cont;
+    RecordersCont<CoreRecord> cont;
 
     auto result = CoreLogger::Init(options, std::move(cont));
     EXPECT_ERROR(result, Error::NoRecorders);
@@ -41,9 +42,9 @@ TEST(SclTest, LoggerUnallocatedRecorderError) {
     using Error = CoreLogger::InitError;
 
     CoreLogger::Options options{};
-    RecordersCont cont;
+    RecordersCont<CoreRecord> cont;
     // push an unallocated recorder to the cont
-    cont.push_back(std::unique_ptr<IRecorder>());
+    cont.push_back(std::unique_ptr<IRecorder<CoreRecord>>());
 
     auto result = CoreLogger::Init(options, std::move(cont));
     EXPECT_ERROR(result, Error::UnallocatedRecorder);
@@ -53,11 +54,11 @@ TEST(SclTest, LoggerInitialized) {
     using Error = CoreLogger::InitError;
 
     CoreLogger::Options options{Level::Debug};
-    ConsoleRecorder::Options console_recorder_options{};
+    ConsoleRecorder<CoreRecord>::Options console_recorder_options{};
 
-    RecordersCont cont;
+    RecordersCont<CoreRecord> cont;
     // push an unallocated recorder to the cont
-    cont.push_back(ConsoleRecorder::Init(console_recorder_options));
+    cont.push_back(ConsoleRecorder<CoreRecord>::Init(console_recorder_options));
 
     LoggerPtr logger;
     Unwrap(logger, CoreLogger::Init(options, std::move(cont)));
@@ -65,8 +66,8 @@ TEST(SclTest, LoggerInitialized) {
 }
 
 TEST(SclTest, ConsoleRecorderInitialized) {
-    ConsoleRecorder::Options options{};
-    const auto recorder = ConsoleRecorder::Init(options);
+    ConsoleRecorder<CoreRecord>::Options options{};
+    const auto recorder = ConsoleRecorder<CoreRecord>::Init(options);
     ASSERT_TRUE(recorder);
 }
 

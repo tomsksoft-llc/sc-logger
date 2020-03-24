@@ -18,6 +18,7 @@ namespace scl {
  * The interface maybe used to implement the required methods for a custom log recorder
  * different from standard FileRecorder or ConsoleRecorder.
  */
+template<typename RecordT>
 struct IRecorder {
     /**
      * Default virtual dtor.
@@ -28,17 +29,19 @@ struct IRecorder {
      * Handle a log record.
      * @param record - record info that should be handled.
      */
-    virtual void OnRecord(const IRecord &record) = 0;
+    virtual void OnRecord(const RecordT &record) = 0;
 };
 
 /**
  * Pointer of recorder interface.
  */
-using RecorderPtr = std::unique_ptr<IRecorder>;
+template<typename RecordT>
+using RecorderPtr = std::unique_ptr<IRecorder<RecordT>>;
 
 /**
  * Recorder pointers container.
  */
-using RecordersCont = std::vector<RecorderPtr>;
+template<typename RecordT>
+using RecordersCont = std::vector<RecorderPtr<RecordT>>;
 
-}
+} // end of scl

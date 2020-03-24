@@ -43,6 +43,9 @@ auto &&Unwrap(std::variant<Value, Error> &&result) {
     return std::get<Value>(std::move(result));
 }
 
+using CoreLogger = cis1::core_logger::CoreLogger;
+using CoreRecord = cis1::core_logger::CoreRecord;
+
 int main(int argc, char *argv[]) {
     using Level = scl::Level;
 
@@ -52,17 +55,17 @@ int main(int argc, char *argv[]) {
 
     cis1::core_logger::CoreLogger::Options options{Level::Debug, pid, ppid, "some session id"};
 
-    scl::ConsoleRecorder::Options console_options{align};
+    scl::ConsoleRecorder<CoreRecord>::Options console_options{align};
 
-    scl::FileRecorder::Options file_options;
+    scl::FileRecorder<CoreRecord>::Options file_options;
     file_options.log_directory = std::filesystem::current_path();
     file_options.file_name_template = "cis1_core_log.%t.%n.txt";
     file_options.size_limit = 300;
     file_options.align = align;
 
-    scl::RecordersCont recorders;
-    recorders.push_back(scl::ConsoleRecorder::Init(console_options));
-    recorders.push_back(Unwrap(scl::FileRecorder::Init(file_options)));
+    scl::RecordersCont<CoreRecord> recorders;
+    recorders.push_back(scl::ConsoleRecorder<CoreRecord>::Init(console_options));
+    recorders.push_back(Unwrap(scl::FileRecorder<CoreRecord>::Init(file_options)));
 
     LoggerInstance = Unwrap(cis1::core_logger::CoreLogger::Init(options, std::move(recorders)));
 

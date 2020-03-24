@@ -6,7 +6,7 @@
 
 namespace cis1::core_logger {
 
-CoreLogger::InitResult CoreLogger::Init(const Options &options, scl::RecordersCont &&recorders) {
+CoreLogger::InitResult CoreLogger::Init(const Options &options, scl::RecordersCont<CoreRecord> &&recorders) {
     using Error = InitError;
 
     if (!scl::detail::IsLevelCorrect(options.level)) {
@@ -38,7 +38,7 @@ void CoreLogger::SesRecord(scl::Level level,
     RecordImpl(level, m_options.session_id, action, message);
 }
 
-CoreLogger::CoreLogger(const CoreLogger::Options &options, scl::RecordersCont &&recorder)
+CoreLogger::CoreLogger(const CoreLogger::Options &options, scl::RecordersCont<CoreRecord> &&recorder)
     : m_options(options),
       m_recorders(std::move(recorder)) {
 }

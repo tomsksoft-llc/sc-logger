@@ -27,7 +27,6 @@ add_library(sc_logger
         src/cis1_core_logger/core_record.cpp
         src/cis1_webui_logger/webui_logger.cpp
         src/cis1_webui_logger/webui_record.cpp
-        src/file_recorder.cpp
         src/record.cpp)
 
 target_include_directories(sc_logger

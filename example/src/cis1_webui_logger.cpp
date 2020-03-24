@@ -52,22 +52,25 @@ void handler_two(const UserContext &context) {
     LOG(Level::Error, Protocol::WS, "Error message (double = %f, char = '%c')", 3.14, '@');
 }
 
+using WebuiLogger = cis1::webui_logger::WebuiLogger;
+using WebuiRecord = cis1::webui_logger::WebuiRecord;
+
 int main(int argc, char *argv[]) {
     const bool align = true;
 
     cis1::webui_logger::WebuiLogger::Options options{Level::Debug};
 
-    scl::ConsoleRecorder::Options console_options{align};
+    scl::ConsoleRecorder<WebuiRecord>::Options console_options{align};
 
-    scl::FileRecorder::Options file_options;
+    scl::FileRecorder<WebuiRecord>::Options file_options;
     file_options.log_directory = std::filesystem::current_path();
     file_options.file_name_template = "cis1_webui_log.%t.%n.txt";
     file_options.size_limit = 600;
     file_options.align = align;
 
-    scl::RecordersCont recorders;
-    recorders.push_back(scl::ConsoleRecorder::Init(console_options));
-    recorders.push_back(Unwrap(scl::FileRecorder::Init(file_options)));
+    scl::RecordersCont<WebuiRecord> recorders;
+    recorders.push_back(scl::ConsoleRecorder<WebuiRecord>::Init(console_options));
+    recorders.push_back(Unwrap(scl::FileRecorder<WebuiRecord>::Init(file_options)));
 
     LoggerInstance = Unwrap(cis1::webui_logger::WebuiLogger::Init(options, std::move(recorders)));
 
