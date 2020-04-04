@@ -33,7 +33,9 @@ public:
     /**
      * Number of digits of the maximum possible integer of the specified T type.
      */
-    static constexpr std::size_t max_digits_count = detect_digits_count(std::numeric_limits<T>::max());
+    static constexpr std::size_t max_digits_count
+        = detect_digits_count(std::numeric_limits<T>::max())
+          + (std::is_signed_v<T> ? 1 : 0);
 };
 
 

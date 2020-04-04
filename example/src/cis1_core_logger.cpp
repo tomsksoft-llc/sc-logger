@@ -49,7 +49,7 @@ using CoreRecord = cis1::core_logger::CoreRecord;
 int main(int argc, char *argv[]) {
     using Level = scl::Level;
 
-    const scl::ProcessId pid = 12345;
+    const scl::ProcessId pid = 1222212345;
     const scl::ProcessId ppid = 1;
     const bool align = true;
 
