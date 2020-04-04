@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <optional>
+
 namespace scl {
 /**
  * Log levels enumeration.
@@ -18,6 +20,28 @@ enum class Level : int {
     Info,
     Debug
 };
+
+inline std::optional<Level> LevelFromStr(std::string str) {
+    for (auto &ch : str) {
+        ch =::tolower(ch);
+    }
+
+    if (str == "action")    return Level::Action;
+    if (str == "error")     return Level::Error;
+    if (str == "info")      return Level::Info;
+    if (str == "debug")     return Level::Debug;
+    return std::nullopt;
+}
+
+inline std::string LevelToString(Level level) {
+    switch(level) {
+        case Level::Action:    return "Action";
+        case Level::Error:     return "Error";
+        case Level::Info:      return "Info";
+        case Level::Debug:     return "Debug";
+        default:               return "Unknown";
+    }
+}
 
 namespace detail {
 /**

@@ -7,14 +7,11 @@
 
 cis1::webui_logger::LoggerPtr LoggerInstance;
 
-#define LOG_SYS(level, format, ...) \
-LoggerInstance->SysRecord(level, SCFormat(format, ##__VA_ARGS__))
+#define LOG(level, format, ...) \
+LoggerInstance->Record(level, SCFormat(format, ##__VA_ARGS__))
 
-#define LOG(level, protocol, format, ...) \
-LoggerInstance->Record(level, protocol, __FUNCTION__, SCFormat(format, ##__VA_ARGS__))
-
-#define LOG_USR(level, protocol, format, ...) \
-LoggerInstance->UserRecord(level, protocol, __FUNCTION__, context.addr, context.email, SCFormat(format, ##__VA_ARGS__))
+#define EXLOG(level, protocol, format, ...) \
+LoggerInstance->ExRecord(level, protocol, __FUNCTION__, context.addr, context.email, SCFormat(format, ##__VA_ARGS__))
 
 struct UserType {
     std::string data;
@@ -41,15 +38,13 @@ using Level = scl::Level;
 using Protocol = cis1::webui_logger::Protocol;
 
 void handler_one(const UserContext &context) {
-    LOG_USR(Level::Debug, Protocol::HTTP_POST, "Debug %s", "message");
-    LOG_USR(Level::Info, Protocol::HTTP_POST, "Info message");
-    LOG(Level::Error, Protocol::HTTP_POST, "Error message (double = %f, char = '%c')", 3.14, '@');
+    EXLOG(Level::Debug, Protocol::HTTP_POST, "Debug %s", "message");
+    EXLOG(Level::Info, Protocol::HTTP_POST, "Info message (double = %f, char = '%c')", 3.14, '@');
 }
 
 void handler_two(const UserContext &context) {
-    LOG_USR(Level::Debug, Protocol::WS, "Debug %s", "message");
-    LOG_USR(Level::Info, Protocol::WS, "Info message");
-    LOG(Level::Error, Protocol::WS, "Error message (double = %f, char = '%c')", 3.14, '@');
+    EXLOG(Level::Debug, Protocol::WS, "Debug %s", "message");
+    EXLOG(Level::Info, Protocol::WS, "Info message (double = %f, char = '%c')", 3.14, '@');
 }
 
 using WebuiLogger = cis1::webui_logger::WebuiLogger;
@@ -77,14 +72,14 @@ int main(int argc, char *argv[]) {
     UserType val{"12345"};
     UserContext context{"first_usr@example.com", "127.0.0.1:8000"};
 
-    LOG_SYS(Level::Action, "Run handler_one() (UserType = %U)", val);
+    LOG(Level::Action, "Run handler_one() (UserType = %U)", val);
     handler_one(context);
-    LOG_SYS(Level::Action, "Stop handler_one()");
+    LOG(Level::Action, "Stop handler_one()");
 
     context.email = "second_usr@exampl.com";
     context.addr = "127.0.0.1:8001";
 
-    LOG_SYS(Level::Action, "Run handler_two() (double = %f, char = '%c')", 3.14, '@');
+    LOG(Level::Action, "Run handler_two() (double = %f, char = '%c')", 3.14, '@');
     handler_two(context);
-    LOG_SYS(Level::Action, "Stop handler_two()");
+    LOG(Level::Action, "Stop handler_two()");
 }

@@ -28,6 +28,7 @@ WebuiRecord::AlignedTokenCont WebuiRecord::AsAlignedTokens() const {
     result.reserve(max_tokens_count);
 
     result.emplace_back(time_str, Fmt::time_length_k);
+    result.emplace_back(scl::LevelToString(level), Fmt::level_length_k);
 
     if (protocol) {
         result.emplace_back(ProtocolToString(protocol.value()), protocol_length);
@@ -55,6 +56,7 @@ WebuiRecord::TokenCont WebuiRecord::AsTokens() const {
     result.reserve(max_tokens_count);
 
     result.emplace_back(time_str);
+    result.emplace_back(scl::LevelToString(level));
 
     if (protocol) {
         result.emplace_back(ProtocolToString(protocol.value()));

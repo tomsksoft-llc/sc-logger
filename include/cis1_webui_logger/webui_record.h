@@ -17,7 +17,7 @@
 namespace cis1::webui_logger {
 
 // with a margin
-const std::size_t handler_length = 40;
+const std::size_t handler_length = 28;
 
 // the longest IPv4 address name is 255.255.255.255:65535
 const std::size_t remote_addr_v4_length = 21;
@@ -35,18 +35,6 @@ public:
                          const std::optional<std::string> &remote_addr_,
                          const std::optional<std::string> &email_);
 
-protected:
-    /**
-     * @overload
-     * Note the email will not be alligned
-     */
-    AlignedTokenCont AsAlignedTokens() const final;
-
-    TokenCont AsTokens() const final;
-
-    std::string Message() const final;
-
-private:
     scl::Level level = scl::Level::Action;
     std::string time_str;
     std::string message;
@@ -54,6 +42,20 @@ private:
     std::optional<std::string> handler;
     std::optional<std::string> remote_addr;
     std::optional<std::string> email;
+
+protected:
+    /**
+     * @overload
+     * Note the email will not be alligned
+     */
+    [[nodiscard]]
+    AlignedTokenCont AsAlignedTokens() const final;
+
+    [[nodiscard]]
+    TokenCont AsTokens() const final;
+
+    [[nodiscard]]
+    std::string Message() const final;
 };
 
 } // end of cis1::webui_logger

@@ -33,7 +33,9 @@ template<
     std::enable_if_t<Specifier == specifiers::string_spc_k> * = nullptr
 >
 inline std::string ToString(std::string_view arg) {
-    return arg.data();
+    std::stringstream ss;
+    ss << arg;
+    return ss.str();
 }
 
 template<

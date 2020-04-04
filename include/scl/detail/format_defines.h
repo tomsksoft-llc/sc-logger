@@ -55,6 +55,9 @@ const auto time_format_k = "%Y-%m-%d-%H-%M-%S";
 const auto time_length_k = 19;
 
 const auto pid_length_k = NumberTrait<ProcessId>::max_digits_count;
+
+// The longest level name is "Unknown"
+const auto level_length_k = 7;
 } // end of log_formatting
 
 } // end of scl::detail

@@ -89,22 +89,12 @@ public:
     ~WebuiLogger() = default;
 
     /**
-     * Record a system message.
-     * @param level - level of the record
-     *                (if the value greater than an options.level, then the message will be skipped)
-     * @param message - record message
-     */
-    void SysRecord(scl::Level level, const std::string &message);
-
-    /**
      * Record a message.
      * @param level - level of the record
      *                (if the value greater than an options.level, then the message will be skipped)
-     * @param handler - request handler name
-     * @param protocol - protocol name
      * @param message - record message
      */
-    void Record(scl::Level level, Protocol protocol, const std::string &handler, const std::string &message);
+    void Record(scl::Level level, const std::string &message);
 
     /**
      * Record a message with user's info.
@@ -116,11 +106,11 @@ public:
      * @param email - user name
      * @param message - record message
      */
-    void UserRecord(scl::Level level,
+    void ExRecord(scl::Level level,
                     Protocol protocol,
                     const std::string &handler,
                     const std::string &remote_addr,
-                    const std::string &email,
+                    const std::optional<std::string> &email,
                     const std::string &message);
 
 private:

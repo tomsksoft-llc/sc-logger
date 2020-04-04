@@ -40,14 +40,6 @@ public:
                         scl::ProcessId parent_pid_,
                         scl::ProcessId pid_);
 
-protected:
-    AlignedTokenCont AsAlignedTokens() const final;
-
-    TokenCont AsTokens() const final;
-
-    std::string Message() const final;
-
-private:
     scl::Level level = scl::Level::Action;
     std::string time_str;
     std::optional<std::string> session_id;
@@ -55,6 +47,16 @@ private:
     std::string message;
     scl::ProcessId parent_pid = 0;
     scl::ProcessId pid = 0;
+
+protected:
+    [[nodiscard]]
+    AlignedTokenCont AsAlignedTokens() const final;
+
+    [[nodiscard]]
+    TokenCont AsTokens() const final;
+
+    [[nodiscard]]
+    std::string Message() const final;
 };
 
 } // end of cis1::core_logger

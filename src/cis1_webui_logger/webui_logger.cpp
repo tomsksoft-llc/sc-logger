@@ -27,7 +27,7 @@ WebuiLogger::InitResult WebuiLogger::Init(const Options &options, scl::Recorders
     return LoggerPtr(new WebuiLogger(options, std::move(recorders)));
 }
 
-void WebuiLogger::SysRecord(scl::Level level, const std::string &message) {
+void WebuiLogger::Record(scl::Level level, const std::string &message) {
     const auto protocol = std::nullopt;
     const auto handler = std::nullopt;
     const auto remote_addr = std::nullopt;
@@ -35,17 +35,11 @@ void WebuiLogger::SysRecord(scl::Level level, const std::string &message) {
     RecordImpl(level, protocol, handler, remote_addr, email, message);
 }
 
-void WebuiLogger::Record(scl::Level level, Protocol protocol, const std::string &handler, const std::string &message) {
-    const auto remote_addr = std::nullopt;
-    const auto email = std::nullopt;
-    RecordImpl(level, protocol, handler, remote_addr, email, message);
-}
-
-void WebuiLogger::UserRecord(scl::Level level,
+void WebuiLogger::ExRecord(scl::Level level,
                              Protocol protocol,
                              const std::string &handler,
                              const std::string &remote_addr,
-                             const std::string &email,
+                             const std::optional<std::string> &email,
                              const std::string &message) {
     RecordImpl(level, protocol, handler, remote_addr, email, message);
 }
