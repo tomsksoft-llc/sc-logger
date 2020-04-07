@@ -1,7 +1,7 @@
 /*
  *    TomskSoft SC_LOGGER
  *
- *   (c) 2019 TomskSoft LLC
+ *   (c) 2020 TomskSoft LLC
  *   (c) Sergey Boyko [bso@tomsksoft.com]
  *
  */
@@ -13,18 +13,20 @@
 #include <set>
 #include <variant>
 
+#include <cis1_core_logger/core_record.h>
 #include <scl/levels.h>
 #include <scl/recorder.h>
+#include <scl/process_id.h>
 #include <scf/detail/type_matching.h>
 
-namespace scl {
+namespace cis1::core_logger {
 
-class Logger;
+class CoreLogger;
 
 /**
  * Non-moving logger pointer alias.
  */
-using LoggerPtr = std::unique_ptr<Logger>;
+using LoggerPtr = std::unique_ptr<CoreLogger>;
 
 /**
  * Logger implementation.
@@ -33,7 +35,7 @@ using LoggerPtr = std::unique_ptr<Logger>;
  *  - get log messages and other corresponding parameters;
  *  - move structured record message (as RecordInfo) to a recorder.
  */
-class Logger {
+class CoreLogger {
 public:
     /**
      * Initialization error info.
@@ -56,17 +58,17 @@ public:
         /**
          * Logging messages which are less severe than level will be ignored.
          */
-        Level level = Level::Action;
+        scl::Level level = scl::Level::Action;
 
         /**
          * Current process id
          */
-        ProcessId pid = 0;
+        scl::ProcessId pid = 0;
 
         /**
          * Parent process id
          */
-        ProcessId parent_pid = 0;
+        scl::ProcessId parent_pid = 0;
 
         /**
          * Optional session id
@@ -93,12 +95,12 @@ public:
      * @param recorders - recorders that will handle log records
      * @return - ether pointer to an initialized logger or an error info
      */
-    static InitResult Init(const Options &options, RecordersCont &&recorders);
+    static InitResult Init(const Options &options, scl::RecordersCont<CoreRecord> &&recorders);
 
     /**
      * Default dtor.
      */
-    ~Logger() = default;
+    ~CoreLogger() = default;
 
     /**
      * Record a message. Optional session id and action will not be put into a result log record.
@@ -106,7 +108,7 @@ public:
      *                (if the value greater than an options.level, then the message will be skipped)
      * @param message - record message
      */
-    void Record(Level level, const std::string &message);
+    void Record(scl::Level level, const std::string &message);
 
     /**
      * Record a message with the specified session id. Optional action will not be put into a result log record.
@@ -114,7 +116,7 @@ public:
      *                (if the value greater than an options.level, then the message will be skipped)
      * @param message - record message
      */
-    void SesRecord(Level level, const std::string &message);
+    void SesRecord(scl::Level level, const std::string &message);
 
     /**
      * Record a message with the specified action. Optional session id will not be put into a result log record.
@@ -125,7 +127,7 @@ public:
      * @param message - record message
      */
     template<typename ActT>
-    inline void ActRecord(Level level,
+    inline void ActRecord(scl::Level level,
                           const ActT &action,
                           const std::string &message) {
         const auto session_id = std::nullopt;
@@ -142,7 +144,7 @@ public:
     * @param message - record message
     */
     template<typename ActT>
-    inline void SesActRecord(Level level,
+    inline void SesActRecord(scl::Level level,
                              const ActT &action,
                              const std::string &message) {
         RecordImpl(level, m_options.session_id, ActionAsString(action), message);
@@ -174,7 +176,7 @@ private:
      * @param options - logger options.
      * @param recorder - recorder that will handle log records
      */
-    explicit Logger(const Options &options, RecordersCont &&recorder);
+    explicit CoreLogger(const Options &options, scl::RecordersCont<CoreRecord> &&recorder);
 
     /**
      * Message record implementation: record a message with the optional session id and action.
@@ -183,7 +185,7 @@ private:
      * @param action - action
      * @param message - record message
      */
-    void RecordImpl(Level level,
+    void RecordImpl(scl::Level level,
                     const std::optional<std::string> &session_id,
                     const std::optional<std::string> &action,
                     const std::string &message);
@@ -196,7 +198,7 @@ private:
     /**
      * Recorder that processes log records (eg FileRecorder, ConsoleRecorder and other custom recorders)
      */
-    RecordersCont m_recorders;
+    scl::RecordersCont<CoreRecord> m_recorders;
 };
 
-} // end of scl
+} // end of cis1::core_logger

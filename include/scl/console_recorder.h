@@ -10,31 +10,33 @@
 
 #include <memory>
 #include <iostream>
-#include <scl/align_info.h>
 #include <scl/recorder.h>
 
 namespace scl {
 
+template<typename RecordT>
 class ConsoleRecorder;
 
 /**
- * Non-moving console recorder pointer alias.
+ * Alias of non-moving console recorder pointer.
  */
-using ConsoleRecorderPtr = std::unique_ptr<ConsoleRecorder>;
+template<typename RecordT>
+using ConsoleRecorderPtr = std::unique_ptr<ConsoleRecorder<RecordT>>;
 
 /**
  * Console recorder that implement the IRecorder interface.
  */
-class ConsoleRecorder : public IRecorder {
+template<typename RecordT>
+class ConsoleRecorder : public IRecorder<RecordT> {
 public:
     /**
      * Console recorder options.
      */
     struct Options {
         /**
-         * Allow to align entry attributes, if the values is set.
+         * Allow to align entry attributes, if the values is true.
          */
-        std::optional<AlignInfo> align_info = std::nullopt;
+        bool align = false;
     };
 
     /**
@@ -47,18 +49,18 @@ public:
      * @param options - console recorder options
      * @return - ether pointer to an initialized recorder or an error info
      */
-    static ConsoleRecorderPtr Init(const Options &options) {
-        return ConsoleRecorderPtr(new ConsoleRecorder(options));
+    static ConsoleRecorderPtr<RecordT> Init(const Options &options) {
+        return ConsoleRecorderPtr<RecordT>(new ConsoleRecorder(options));
     }
 
     /**
      * @overload
      */
-    inline void OnRecord(const RecordInfo &record) final {
-        if (m_options.align_info) {
-            std::cout << ToString(record, *m_options.align_info) << std::endl;
+    inline void OnRecord(const RecordT &record) final {
+        if (m_options.align) {
+            std::cout << record.ToAlignedString() << std::endl;
         } else {
-            std::cout << ToString(record) << std::endl;
+            std::cout << record.ToString() << std::endl;
         }
     }
 

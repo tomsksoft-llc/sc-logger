@@ -71,12 +71,12 @@ for Continuous Integration systems (abbreviated as CIS).
 
 ### Usage
 
-The main class provides methods for the logging is `Logger`.
+The main class provides methods for the logging is `CoreLogger`.
 The user is responsible for creating and storing an object of this class.
-The `Logger` takes a record parameters like optional session id and action and required log level
-and message string, converts it to the special structure `RecordInfo`
+The `CoreLogger` takes a record parameters like optional session id and action and required log level
+and message string, converts it to the special structure `IRecord`
 and moves the record to an recorder.
-The `Logger` constructor takes a non-moving pointer to an `IRecorder` object.
+The `CoreLogger` constructor takes a non-moving pointer to an `IRecorder` object.
 
 There are two standard recorders: `ConsoleRecorder` and `FileRecorder`.
 First prints records to the stdout, second writes records to a specified file.
@@ -92,11 +92,11 @@ std::unique_ptr<ConsoleRecorder> console_recorder = scl::ConsoleRecorder::Init(c
 ```
 
 Second create a logger.
-Note the `Init()` method returns either pointer to a `Logger` instance or an error.
+Note the `Init()` method returns either pointer to a `CoreLogger` instance or an error.
 
 ```
 std::variant<LoggerPtr, InitError> console_logger_result
-    = scl::Logger::Init(options, std::move(console_recorder)));
+    = scl::CoreLogger::Init(options, std::move(console_recorder)));
 // Note process also the InitError
 LoggerPtr console_logger = std::get<LoggerPtr>(std::move(console_logger_result);
 ```
