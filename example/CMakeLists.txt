@@ -1,7 +1,9 @@
 project(example)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
+if (NOT BUILD_EXAMPLE)
+    include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+    conan_basic_setup(TARGETS)
+endif ()
 
 add_executable(cis1_core_logger src/cis1_core_logger.cpp)
 add_executable(cis1_webui_logger src/cis1_webui_logger.cpp)

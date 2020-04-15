@@ -20,25 +20,27 @@ set(BUILD_EXAMPLE
     CACHE BOOL
     "Build examples for self-check-logger library")
 
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup(TARGETS)
 
 find_package(Filesystem REQUIRED Final)
-add_library(sc_logger
-        src/cis1_core_logger/core_logger.cpp
-        src/cis1_core_logger/core_record.cpp
-        src/cis1_webui_logger/webui_logger.cpp
-        src/cis1_webui_logger/webui_record.cpp
-        src/record.cpp)
 
-target_include_directories(sc_logger
+add_library(
+    sc_logger
+    src/cis1_core_logger/core_logger.cpp
+    src/cis1_core_logger/core_record.cpp
+    src/cis1_webui_logger/webui_logger.cpp
+    src/cis1_webui_logger/webui_record.cpp
+    src/record.cpp)
+
+target_include_directories(
+    sc_logger
     PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    )
+    include)
 
 target_link_libraries(sc_logger
     PUBLIC
-    std::filesystem
-    ${CONAN_LIBS}
-    )
+    std::filesystem)
 
 set_property(TARGET sc_logger PROPERTY CXX_STANDARD 17)
 
@@ -70,3 +72,15 @@ if (BUILD_EXAMPLE)
     add_subdirectory(example)
 endif ()
 
+install(
+    TARGETS sc_logger
+    LIBRARY
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/" # source directory
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} # target directory
+        FILES_MATCHING # install only matched files
+        PATTERN "*.h" # select header files
+)
