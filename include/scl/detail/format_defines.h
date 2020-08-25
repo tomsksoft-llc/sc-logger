@@ -2,6 +2,7 @@
 
 #include <type_traits>
 #include <cstddef>
+#include <limits>
 
 #include <scl/process_id.h>
 

@@ -2,7 +2,7 @@ from conans import ConanFile, CMake, tools
 
 class ScLogger(ConanFile):
     name = "sc_logger"
-    version = "1.0.3"
+    version = "1.0.4"
     description = "Self check logger"
     author = "BoykoSO <bso@tomsksoft.com>"
     settings = "os", "compiler", "arch", "build_type"
